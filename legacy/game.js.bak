@@ -1,0 +1,780 @@
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+});
+
+// --- 1. AYARLAR ---
+const MAP_WIDTH = 3000;
+const MAP_HEIGHT = 3000;
+const camera = { x: 0, y: 0 };
+let isPaused = false;
+let availableCards = [];
+
+const XP_COLLECT_RADIUS = 120; // Oyuncunun XP çekme menzili
+
+const SELECTED_CLASS = 'ninja';
+const CLASS_STATS = {
+    ninja: { color: '#a0e0ff', attackRange: 120, attackSpread: Math.PI / 2, maxHealth: 3, speed: 4.5, damage: 15, fireRate: 250, luck: 1.2, startWeapon: 'Katana' },
+    yeniceri: { color: '#ff6b6b', attackRange: 70, attackSpread: Math.PI / 1.5, maxHealth: 5, speed: 3.5, damage: 25, fireRate: 400, luck: 1.0, startWeapon: 'Tokat' },
+    kovboy: { color: '#f0c070', attackRange: 200, attackSpread: 0.1, maxHealth: 4, speed: 4.0, damage: 10, fireRate: 150, luck: 1.5, startWeapon: 'Kement' }
+};
+
+const keys = { w: false, a: false, s: false, d: false };
+let mouse = { x: canvas.width / 2, y: canvas.height / 2, isDown: false };
+
+window.addEventListener('keydown', (e) => {
+    if (keys.hasOwnProperty(e.key.toLowerCase())) keys[e.key.toLowerCase()] = true;
+    if (e.key.toLowerCase() === 'q') drone.changeMode();
+});
+window.addEventListener('keyup', (e) => {
+    if (keys.hasOwnProperty(e.key.toLowerCase())) keys[e.key.toLowerCase()] = false;
+});
+window.addEventListener('mousedown', (e) => {
+    if (isPaused) { handleCardClick(e.clientX, e.clientY); return; }
+    if (e.button === 0) mouse.isDown = true;
+});
+window.addEventListener('mouseup', (e) => { if (e.button === 0) mouse.isDown = false; });
+window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+window.addEventListener('contextmenu', e => e.preventDefault());
+
+window.addEventListener('wheel', (e) => {
+    if (isPaused || player.inventory.length === 0) return;
+    player.currentSlot = e.deltaY > 0
+        ? (player.currentSlot + 1) % player.inventory.length
+        : (player.currentSlot - 1 + player.inventory.length) % player.inventory.length;
+});
+
+// --- 2. SINIFLAR ---
+
+class Player {
+    constructor(x, y, charClass) {
+        this.x = x; this.y = y; this.radius = 15;
+        this.stats = { ...CLASS_STATS[charClass] };
+        this.color = this.stats.color;
+
+        this.maxHealth = this.stats.maxHealth;
+        this.health = this.maxHealth;
+        this.speed = this.stats.speed;
+
+        this.level = 1; this.xp = 0; this.xpToNextLevel = 50;
+
+        this.lastAttackTime = 0;
+        this.isAttacking = false;
+        this.attackAngle = 0;
+
+        // Hasar cooldown — düşmanlar her frame'de vurmasın
+        this.lastHitTime = 0;
+        this.hitCooldown = 800; // ms
+
+        // Mad zone buff
+        this.madBuff = false;
+
+        this.maxSlots = 1;
+        this.inventory = [{ type: this.stats.startWeapon, isMelee: true, ammo: Infinity }];
+        this.currentSlot = 0;
+    }
+
+    draw() {
+        const dx = this.x - camera.x;
+        const dy = this.y - camera.y;
+
+        // XP çekme menzili göstergesi (çok şeffaf)
+        ctx.beginPath();
+        ctx.arc(dx, dy, XP_COLLECT_RADIUS, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255, 255, 100, 0.12)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Oyuncu dairesi
+        ctx.beginPath();
+        ctx.arc(dx, dy, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.madBuff ? '#ff0' : this.color;
+        ctx.fill();
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Saldırı yelpazesi
+        if (this.isAttacking) {
+            ctx.beginPath();
+            ctx.moveTo(dx, dy);
+            ctx.arc(dx, dy, this.stats.attackRange,
+                this.attackAngle - this.stats.attackSpread,
+                this.attackAngle + this.stats.attackSpread);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+            ctx.fill();
+        }
+    }
+
+    update() {
+        const effectiveSpeed = this.madBuff ? this.speed * 1.5 : this.speed;
+
+        if (keys.w) this.y = Math.max(this.radius, this.y - effectiveSpeed);
+        if (keys.s) this.y = Math.min(MAP_HEIGHT - this.radius, this.y + effectiveSpeed);
+        if (keys.a) this.x = Math.max(this.radius, this.x - effectiveSpeed);
+        if (keys.d) this.x = Math.min(MAP_WIDTH - this.radius, this.x + effectiveSpeed);
+
+        camera.x = this.x - canvas.width / 2;
+        camera.y = this.y - canvas.height / 2;
+
+        if (mouse.isDown && Date.now() - this.lastAttackTime > this.stats.fireRate) {
+            this.attack();
+        }
+        if (Date.now() - this.lastAttackTime > 150) this.isAttacking = false;
+
+        this.draw();
+    }
+
+    takeDamage(amount) {
+        if (Date.now() - this.lastHitTime < this.hitCooldown) return;
+        this.lastHitTime = Date.now();
+        this.health -= amount;
+        if (this.health <= 0) {
+            this.health = 0;
+            // Oyun bitti mesajı
+            isPaused = true;
+            setTimeout(() => {
+                ctx.fillStyle = 'rgba(0,0,0,0.8)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#ff4444';
+                ctx.font = 'bold 60px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('ÖLDÜN!', canvas.width / 2, canvas.height / 2);
+                ctx.fillStyle = 'white';
+                ctx.font = '24px Arial';
+                ctx.fillText('Sayfayı yenileyerek tekrar oyna', canvas.width / 2, canvas.height / 2 + 50);
+            }, 100);
+        }
+    }
+
+    attack() {
+        const weapon = this.inventory[this.currentSlot];
+        if (!weapon || (weapon.ammo <= 0 && !weapon.isMelee)) return;
+
+        this.lastAttackTime = Date.now();
+        const worldMouseX = mouse.x + camera.x;
+        const worldMouseY = mouse.y + camera.y;
+        this.attackAngle = Math.atan2(worldMouseY - this.y, worldMouseX - this.x);
+
+        const effectiveDamage = this.madBuff ? this.stats.damage * 1.5 : this.stats.damage;
+
+        if (weapon.isMelee) {
+            this.isAttacking = true;
+            enemies.forEach((enemy, index) => {
+                const dist = Math.hypot(enemy.x - this.x, enemy.y - this.y);
+                if (dist <= this.stats.attackRange + enemy.radius) {
+                    let angleDiff = Math.atan2(enemy.y - this.y, enemy.x - this.x) - this.attackAngle;
+                    while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+                    while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+                    if (Math.abs(angleDiff) <= this.stats.attackSpread) {
+                        enemy.health -= effectiveDamage;
+                        if (enemy.health <= 0) handleEnemyDeath(enemy, index);
+                    }
+                }
+            });
+        } else {
+            weapon.ammo--;
+            const speedMult = weapon.type === 'sniper' ? 15 : 8;
+            const dmgMult = weapon.type === 'sniper' ? 3 : (weapon.type === 'pompali' ? 0.5 : 1);
+
+            if (weapon.type === 'pompali') {
+                for (let i = -1; i <= 1; i++) {
+                    const angle = this.attackAngle + i * 0.2;
+                    projectiles.push(new Projectile(this.x, this.y,
+                        { x: Math.cos(angle) * speedMult, y: Math.sin(angle) * speedMult },
+                        effectiveDamage * dmgMult));
+                }
+            } else {
+                projectiles.push(new Projectile(this.x, this.y,
+                    { x: Math.cos(this.attackAngle) * speedMult, y: Math.sin(this.attackAngle) * speedMult },
+                    effectiveDamage * dmgMult));
+            }
+        }
+    }
+
+    gainXp(amount) {
+        this.xp += amount;
+        if (this.xp >= this.xpToNextLevel) {
+            this.level++;
+            this.xp -= this.xpToNextLevel;
+            this.xpToNextLevel = Math.floor(this.xpToNextLevel * 1.5);
+            if (this.level % 3 === 0 && this.maxSlots < 3) this.maxSlots++;
+            triggerUpgradeCards();
+        }
+    }
+}
+
+class Drone {
+    constructor(owner) {
+        this.owner = owner;
+        this.x = owner.x; this.y = owner.y;
+        this.radius = 8;
+        this.mode = 0;
+        this.actionTimer = Date.now();
+    }
+
+    changeMode() { this.mode = (this.mode + 1) % 3; }
+
+    draw() {
+        const dx = this.x - camera.x;
+        const dy = this.y - camera.y;
+        ctx.beginPath();
+        ctx.arc(dx, dy, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.mode === 0 ? '#2ecc71' : (this.mode === 1 ? '#f1c40f' : '#e74c3c');
+        ctx.fill();
+        ctx.strokeStyle = 'white'; ctx.lineWidth = 1.5; ctx.stroke();
+    }
+
+    update() {
+        let targetX = this.owner.x - 40;
+        let targetY = this.owner.y - 40;
+
+        if (this.mode === 0 && Date.now() - this.actionTimer > 3000) {
+            if (this.owner.health < this.owner.maxHealth) {
+                this.owner.health++;
+                this.actionTimer = Date.now();
+            }
+        } else if (this.mode === 1 && orbs.length > 0) {
+            let closest = orbs[0];
+            let minDist = Math.hypot(closest.x - this.x, closest.y - this.y);
+            for (let orb of orbs) {
+                const d = Math.hypot(orb.x - this.x, orb.y - this.y);
+                if (d < minDist) { minDist = d; closest = orb; }
+            }
+            targetX = closest.x; targetY = closest.y;
+        } else if (this.mode === 2 && enemies.length > 0 && Date.now() - this.actionTimer > 1500) {
+            let closest = enemies[0];
+            let minDist = Math.hypot(closest.x - this.x, closest.y - this.y);
+            for (let enemy of enemies) {
+                const d = Math.hypot(enemy.x - this.x, enemy.y - this.y);
+                if (d < minDist) { minDist = d; closest = enemy; }
+            }
+            if (minDist < 400) {
+                const angle = Math.atan2(closest.y - this.y, closest.x - this.x);
+                projectiles.push(new Projectile(this.x, this.y, { x: Math.cos(angle) * 6, y: Math.sin(angle) * 6 }, 5));
+                this.actionTimer = Date.now();
+            }
+        }
+
+        this.x += (targetX - this.x) * 0.05;
+        this.y += (targetY - this.y) * 0.05;
+        this.draw();
+    }
+}
+
+class Projectile {
+    constructor(x, y, velocity, damage) {
+        this.x = x; this.y = y;
+        this.radius = 4;
+        this.velocity = velocity;
+        this.damage = damage;
+    }
+    draw() {
+        ctx.beginPath();
+        ctx.arc(this.x - camera.x, this.y - camera.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'cyan'; ctx.fill();
+    }
+    update() {
+        this.x += this.velocity.x;
+        this.y += this.velocity.y;
+        this.draw();
+    }
+}
+
+class Zone {
+    constructor(x, y, type) {
+        this.x = x; this.y = y;
+        this.radius = 150;
+        this.type = type;
+        this.timer = 5000;
+        this.lastTime = Date.now();
+    }
+    draw() {
+        const dx = this.x - camera.x;
+        const dy = this.y - camera.y;
+        ctx.beginPath();
+        ctx.arc(dx, dy, this.radius, 0, Math.PI * 2);
+        // Safe: yeşil, Mad: mor (artık oyuncuya faydalı)
+        ctx.fillStyle = this.type === 'safe' ? 'rgba(46, 204, 113, 0.25)' : 'rgba(155, 89, 182, 0.3)';
+        ctx.fill();
+        ctx.strokeStyle = this.type === 'safe' ? '#2ecc71' : '#9b59b6';
+        ctx.lineWidth = 2; ctx.stroke();
+
+        ctx.fillStyle = 'white';
+        ctx.font = '13px Arial';
+        ctx.textAlign = 'center';
+        const label = this.type === 'safe' ? '🛡 Güvenli' : '⚡ Güç Bölgesi';
+        ctx.fillText(label, dx, dy - this.radius - 6);
+        ctx.fillText(`${(this.timer / 1000).toFixed(1)}s`, dx, dy);
+    }
+    update() {
+        const now = Date.now();
+        this.timer -= (now - this.lastTime);
+        this.lastTime = now;
+        this.draw();
+    }
+}
+
+class WeaponDrop {
+    constructor(x, y, type) {
+        this.x = x; this.y = y;
+        this.radius = 14;
+        this.type = type;
+        this.timer = 10000;
+        this.lastTime = Date.now();
+    }
+    draw() {
+        const dx = this.x - camera.x;
+        const dy = this.y - camera.y;
+
+        // Parlayan çerçeve
+        ctx.beginPath();
+        ctx.arc(dx, dy, this.radius + 4, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255, 165, 0, 0.5)';
+        ctx.lineWidth = 3; ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(dx, dy, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#ff8c00'; ctx.fill();
+
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 9px Arial';
+        ctx.textAlign = 'center';
+        const short = { pompali: 'PMP', taramali: 'TAR', sniper: 'SNP' };
+        ctx.fillText(short[this.type] || 'SLH', dx, dy + 3);
+
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        ctx.font = '11px Arial';
+        ctx.fillText(this.type, dx, dy + this.radius + 14);
+    }
+    update() {
+        this.timer -= (Date.now() - this.lastTime);
+        this.lastTime = Date.now();
+        this.draw();
+    }
+}
+
+class Enemy {
+    constructor(x, y) {
+        this.x = x; this.y = y;
+        this.radius = 12;
+        this.speed = 1.2;
+        this.health = 15;
+        this.maxHealth = 15;
+        this.damage = 1; // Her vuruşta kaç can alır
+        this.lastAttackTime = 0;
+        this.attackCooldown = 800; // ms
+    }
+    draw() {
+        const dx = this.x - camera.x;
+        const dy = this.y - camera.y;
+
+        ctx.beginPath();
+        ctx.arc(dx, dy, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#e74c3c'; ctx.fill();
+
+        // Can barı
+        const barW = this.radius * 2;
+        const barH = 4;
+        const bx = dx - this.radius;
+        const by = dy - this.radius - 8;
+        ctx.fillStyle = '#555';
+        ctx.fillRect(bx, by, barW, barH);
+        ctx.fillStyle = '#e74c3c';
+        ctx.fillRect(bx, by, barW * (this.health / this.maxHealth), barH);
+    }
+    update() {
+        const angle = Math.atan2(player.y - this.y, player.x - this.x);
+        this.x += Math.cos(angle) * this.speed;
+        this.y += Math.sin(angle) * this.speed;
+
+        // Çarpışma kontrolü — canı azalt
+        const dist = Math.hypot(player.x - this.x, player.y - this.y);
+        if (dist < player.radius + this.radius) {
+            if (Date.now() - this.lastAttackTime > this.attackCooldown) {
+                player.takeDamage(this.damage);
+                this.lastAttackTime = Date.now();
+            }
+        }
+
+        this.draw();
+    }
+}
+
+class ExperienceOrb {
+    constructor(x, y, val) {
+        this.x = x; this.y = y;
+        this.radius = 5;
+        this.value = val;
+    }
+    draw() {
+        const dx = this.x - camera.x;
+        const dy = this.y - camera.y;
+        ctx.beginPath();
+        ctx.arc(dx, dy, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#f1c40f'; ctx.fill();
+        ctx.strokeStyle = 'white'; ctx.lineWidth = 1; ctx.stroke();
+    }
+    update() {
+        // XP çekme menzili
+        const dist = Math.hypot(player.x - this.x, player.y - this.y);
+        if (dist < XP_COLLECT_RADIUS) {
+            // Oyuncuya doğru hızla uç
+            const angle = Math.atan2(player.y - this.y, player.x - this.x);
+            const pullSpeed = 5 + (XP_COLLECT_RADIUS - dist) * 0.05;
+            this.x += Math.cos(angle) * pullSpeed;
+            this.y += Math.sin(angle) * pullSpeed;
+        }
+        this.draw();
+    }
+}
+
+// --- 3. KART SİSTEMİ ---
+const UPGRADE_POOL = [
+    { title: "Can Yenile", desc: "Tam can doldur", apply: () => player.health = player.maxHealth },
+    { title: "Maks Can+", desc: "+1 Maksimum Can", apply: () => { player.maxHealth++; player.health++; } },
+    { title: "Hasar+", desc: "+5 Hasar", apply: () => player.stats.damage += 5 },
+    { title: "Hız+", desc: "+0.5 Hareket Hızı", apply: () => player.speed += 0.5 },
+    { title: "Şans+", desc: "Daha çok eşya düşer", apply: () => player.stats.luck += 0.3 },
+    { title: "XP Manyeti+", desc: "Toplama menzili büyür", apply: () => { /* XP_COLLECT_RADIUS sabit olduğundan orb draw'ında offset kullanmak yerine burada bir flag kullanabiliriz */ player._xpBonus = (player._xpBonus || 0) + 30; } }
+];
+
+function getXpRadius() { return XP_COLLECT_RADIUS + (player._xpBonus || 0); }
+
+function triggerUpgradeCards() {
+    isPaused = true;
+    availableCards = [];
+    let poolCopy = [...UPGRADE_POOL];
+    for (let i = 0; i < 3; i++) {
+        if (poolCopy.length === 0) break;
+        const idx = Math.floor(Math.random() * poolCopy.length);
+        availableCards.push(poolCopy[idx]);
+        poolCopy.splice(idx, 1);
+    }
+}
+
+function drawCards() {
+    ctx.fillStyle = 'rgba(0,0,0,0.75)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = 'gold';
+    ctx.font = 'bold 32px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('⬆ SEVİYE ATLADIN!', canvas.width / 2, canvas.height / 2 - 160);
+
+    const cardW = 190, cardH = 230, gap = 35;
+    const startX = (canvas.width - (3 * cardW + 2 * gap)) / 2;
+
+    availableCards.forEach((card, i) => {
+        const x = startX + i * (cardW + gap);
+        const y = canvas.height / 2 - cardH / 2;
+        card.hitbox = { x, y, w: cardW, h: cardH };
+
+        ctx.fillStyle = '#1a1a2e'; ctx.fillRect(x, y, cardW, cardH);
+        ctx.strokeStyle = 'gold'; ctx.lineWidth = 2; ctx.strokeRect(x, y, cardW, cardH);
+
+        ctx.fillStyle = 'gold'; ctx.font = 'bold 20px Arial';
+        ctx.fillText(card.title, x + cardW / 2, y + 65);
+        ctx.fillStyle = '#ccc'; ctx.font = '15px Arial';
+        ctx.fillText(card.desc, x + cardW / 2, y + 120);
+        ctx.fillStyle = 'rgba(255,215,0,0.15)';
+        ctx.fillRect(x + 20, y + cardH - 55, cardW - 40, 30);
+        ctx.fillStyle = 'gold'; ctx.font = '13px Arial';
+        ctx.fillText('Seç', x + cardW / 2, y + cardH - 34);
+    });
+}
+
+function handleCardClick(clickX, clickY) {
+    for (let card of availableCards) {
+        const h = card.hitbox;
+        if (clickX >= h.x && clickX <= h.x + h.w && clickY >= h.y && clickY <= h.y + h.h) {
+            card.apply();
+            isPaused = false;
+            availableCards = [];
+            break;
+        }
+    }
+}
+
+// --- 4. HARİTA ÇİZİMİ ---
+function drawMap() {
+    // Harita arka plan
+    ctx.fillStyle = '#2b2b2b';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Grid çizgileri (harita sınırı içinde)
+    const gridSize = 100;
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.lineWidth = 1;
+    const startGX = Math.floor(camera.x / gridSize) * gridSize;
+    const startGY = Math.floor(camera.y / gridSize) * gridSize;
+    for (let gx = startGX; gx < camera.x + canvas.width; gx += gridSize) {
+        if (gx < 0 || gx > MAP_WIDTH) continue;
+        ctx.beginPath();
+        ctx.moveTo(gx - camera.x, Math.max(0, -camera.y));
+        ctx.lineTo(gx - camera.x, Math.min(canvas.height, MAP_HEIGHT - camera.y));
+        ctx.stroke();
+    }
+    for (let gy = startGY; gy < camera.y + canvas.height; gy += gridSize) {
+        if (gy < 0 || gy > MAP_HEIGHT) continue;
+        ctx.beginPath();
+        ctx.moveTo(Math.max(0, -camera.x), gy - camera.y);
+        ctx.lineTo(Math.min(canvas.width, MAP_WIDTH - camera.x), gy - camera.y);
+        ctx.stroke();
+    }
+
+    // Harita sınır duvarı
+    const bx = -camera.x;
+    const by = -camera.y;
+    ctx.strokeStyle = '#e74c3c';
+    ctx.lineWidth = 6;
+    ctx.strokeRect(bx, by, MAP_WIDTH, MAP_HEIGHT);
+
+    // Köşelerde uyarı levhası efekti
+    ctx.fillStyle = 'rgba(231, 76, 60, 0.15)';
+    const warnW = 40;
+    // Sol duvar
+    if (bx > -warnW && bx < canvas.width) ctx.fillRect(bx, by, warnW, MAP_HEIGHT);
+    // Sağ duvar
+    const rx = bx + MAP_WIDTH - warnW;
+    if (rx > 0 && rx < canvas.width) ctx.fillRect(rx, by, warnW, MAP_HEIGHT);
+    // Üst duvar
+    if (by > -warnW && by < canvas.height) ctx.fillRect(bx, by, MAP_WIDTH, warnW);
+    // Alt duvar
+    const ry = by + MAP_HEIGHT - warnW;
+    if (ry > 0 && ry < canvas.height) ctx.fillRect(bx, ry, MAP_WIDTH, warnW);
+}
+
+// --- 5. UI ---
+function drawUI() {
+    // Can barı (üst sol)
+    const barW = 200, barH = 18;
+    const bx = 20, by = 20;
+    ctx.fillStyle = '#333';
+    ctx.fillRect(bx, by, barW, barH);
+    ctx.fillStyle = player.health > player.maxHealth * 0.3 ? '#e74c3c' : '#ff6b6b';
+    ctx.fillRect(bx, by, barW * (player.health / player.maxHealth), barH);
+    ctx.strokeStyle = 'white'; ctx.lineWidth = 1.5; ctx.strokeRect(bx, by, barW, barH);
+    ctx.fillStyle = 'white'; ctx.font = 'bold 12px Arial'; ctx.textAlign = 'center';
+    ctx.fillText(`${player.health} / ${player.maxHealth}`, bx + barW / 2, by + 13);
+
+    // XP barı
+    const xpBarW = 200, xpBarH = 8;
+    ctx.fillStyle = '#333';
+    ctx.fillRect(bx, by + barH + 4, xpBarW, xpBarH);
+    ctx.fillStyle = '#f1c40f';
+    ctx.fillRect(bx, by + barH + 4, xpBarW * (player.xp / player.xpToNextLevel), xpBarH);
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1;
+    ctx.strokeRect(bx, by + barH + 4, xpBarW, xpBarH);
+
+    ctx.textAlign = 'left';
+    ctx.fillStyle = 'white'; ctx.font = '13px Arial';
+    ctx.fillText(`Seviye ${player.level}`, bx, by + barH + xpBarH + 18);
+
+    // Drone modu
+    const modeNames = ['🟢 İyileşme', '🟡 Toplama', '🔴 Saldırı'];
+    ctx.fillText(`Drone [Q]: ${modeNames[drone.mode]}`, bx, by + barH + xpBarH + 36);
+
+    // Envanter (alt orta)
+    const slotSize = 54;
+    const slotGap = 8;
+    const totalW = player.maxSlots * (slotSize + slotGap) - slotGap;
+    const startIX = (canvas.width - totalW) / 2;
+    const startIY = canvas.height - slotSize - 20;
+
+    for (let i = 0; i < player.maxSlots; i++) {
+        const sx = startIX + i * (slotSize + slotGap);
+        const weapon = player.inventory[i];
+        const isSelected = i === player.currentSlot;
+
+        ctx.fillStyle = isSelected ? 'rgba(255, 215, 0, 0.2)' : 'rgba(0,0,0,0.5)';
+        ctx.fillRect(sx, startIY, slotSize, slotSize);
+        ctx.strokeStyle = isSelected ? 'gold' : 'rgba(255,255,255,0.3)';
+        ctx.lineWidth = isSelected ? 3 : 1.5;
+        ctx.strokeRect(sx, startIY, slotSize, slotSize);
+
+        ctx.textAlign = 'center';
+        if (weapon) {
+            ctx.fillStyle = 'white'; ctx.font = 'bold 11px Arial';
+            ctx.fillText(weapon.type, sx + slotSize / 2, startIY + 24);
+            ctx.fillStyle = weapon.isMelee ? '#aaa' : '#f1c40f';
+            ctx.font = '10px Arial';
+            ctx.fillText(weapon.isMelee ? '∞' : weapon.ammo, sx + slotSize / 2, startIY + 40);
+        } else {
+            ctx.fillStyle = 'rgba(255,255,255,0.2)';
+            ctx.fillText(i + 1, sx + slotSize / 2, startIY + slotSize / 2 + 4);
+        }
+    }
+
+    // Düşman sayısı
+    ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.font = '13px Arial';
+    ctx.fillText(`Düşman: ${enemies.length}`, canvas.width - 20, 30);
+
+    // Mad buff göstergesi
+    if (player.madBuff) {
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#f39c12';
+        ctx.font = 'bold 16px Arial';
+        ctx.fillText('⚡ GÜÇ BÖLGE BUFFI AKTİF ⚡', canvas.width / 2, canvas.height - 100);
+    }
+}
+
+// --- 6. OYUN NESNELERİ ---
+const player = new Player(MAP_WIDTH / 2, MAP_HEIGHT / 2, SELECTED_CLASS);
+const drone = new Drone(player);
+const enemies = [];
+const orbs = [];
+const zones = [];
+const weaponDrops = [];
+const projectiles = [];
+
+function handleEnemyDeath(enemy, index) {
+    orbs.push(new ExperienceOrb(enemy.x, enemy.y, 10));
+    enemies.splice(index, 1);
+}
+
+// Düşman üretimi
+setInterval(() => {
+    if (isPaused) return;
+    const side = Math.floor(Math.random() * 4);
+    let x, y;
+    const margin = 60;
+    if (side === 0) { x = camera.x + Math.random() * canvas.width; y = camera.y - margin; }
+    else if (side === 1) { x = camera.x + Math.random() * canvas.width; y = camera.y + canvas.height + margin; }
+    else if (side === 2) { x = camera.x - margin; y = camera.y + Math.random() * canvas.height; }
+    else { x = camera.x + canvas.width + margin; y = camera.y + Math.random() * canvas.height; }
+
+    // Harita sınırlarına zorla
+    x = Math.max(0, Math.min(MAP_WIDTH, x));
+    y = Math.max(0, Math.min(MAP_HEIGHT, y));
+    enemies.push(new Enemy(x, y));
+}, 1000);
+
+// Item üretimi
+let lastSpawnTime = Date.now();
+function spawnItems() {
+    if (!isPaused && Date.now() - lastSpawnTime > (8000 / player.stats.luck)) {
+        const x = Math.max(50, Math.min(MAP_WIDTH - 50, player.x + (Math.random() * 800 - 400)));
+        const y = Math.max(50, Math.min(MAP_HEIGHT - 50, player.y + (Math.random() * 800 - 400)));
+        const r = Math.random();
+        if (r < 0.25) zones.push(new Zone(x, y, 'safe'));
+        else if (r < 0.5) zones.push(new Zone(x, y, 'mad'));
+        else {
+            const types = ['pompali', 'taramali', 'sniper'];
+            weaponDrops.push(new WeaponDrop(x, y, types[Math.floor(Math.random() * types.length)]));
+        }
+        lastSpawnTime = Date.now();
+    }
+    requestAnimationFrame(spawnItems);
+}
+spawnItems();
+
+// --- 7. ANA DÖNGÜ ---
+function animate() {
+    if (isPaused) {
+        drawCards();
+        requestAnimationFrame(animate);
+        return;
+    }
+    requestAnimationFrame(animate);
+
+    drawMap();
+
+    // Zone'ları güncelle + mad buff kontrolü
+    player.madBuff = false;
+    for (let i = zones.length - 1; i >= 0; i--) {
+        zones[i].update();
+        if (zones[i].timer <= 0) { zones.splice(i, 1); continue; }
+
+        // Oyuncu bu zone'da mı?
+        const dz = Math.hypot(player.x - zones[i].x, player.y - zones[i].y);
+        if (dz < zones[i].radius) {
+            if (zones[i].type === 'mad') player.madBuff = true;
+            // safe zone içinde düşmanlar hız kaybeder (düşman update'inde kontrol edilmez artık, sadece zone bilgisi aktarılır)
+        }
+    }
+
+    // Silah düşürme
+    for (let i = weaponDrops.length - 1; i >= 0; i--) {
+        weaponDrops[i].update();
+        if (weaponDrops[i].timer <= 0) { weaponDrops.splice(i, 1); continue; }
+
+        if (Math.hypot(player.x - weaponDrops[i].x, player.y - weaponDrops[i].y) < player.radius + weaponDrops[i].radius) {
+            const found = player.inventory.find(w => w.type === weaponDrops[i].type);
+            if (found) {
+                found.ammo += 20;
+            } else if (player.inventory.length < player.maxSlots) {
+                player.inventory.push({ type: weaponDrops[i].type, isMelee: false, ammo: 30 });
+            }
+            weaponDrops.splice(i, 1);
+        }
+    }
+
+    // Oyuncu ve drone
+    player.update();
+    drone.update();
+
+    // Mermiler
+    for (let i = projectiles.length - 1; i >= 0; i--) {
+        projectiles[i].update();
+        if (projectiles[i].x < 0 || projectiles[i].x > MAP_WIDTH ||
+            projectiles[i].y < 0 || projectiles[i].y > MAP_HEIGHT) {
+            projectiles.splice(i, 1); continue;
+        }
+        let hit = false;
+        for (let j = enemies.length - 1; j >= 0; j--) {
+            if (Math.hypot(projectiles[i].x - enemies[j].x, projectiles[i].y - enemies[j].y) < projectiles[i].radius + enemies[j].radius) {
+                enemies[j].health -= projectiles[i].damage;
+                if (enemies[j].health <= 0) handleEnemyDeath(enemies[j], j);
+                projectiles.splice(i, 1);
+                hit = true;
+                break;
+            }
+        }
+        if (hit) continue;
+    }
+
+    // XP orbs
+    const xpR = getXpRadius();
+    for (let i = orbs.length - 1; i >= 0; i--) {
+        orbs[i].update();
+        // Drone toplama modu
+        const distD = Math.hypot(drone.x - orbs[i].x, drone.y - orbs[i].y);
+        if (drone.mode === 1 && distD < drone.radius + 10) {
+            player.gainXp(orbs[i].value);
+            orbs.splice(i, 1);
+            continue;
+        }
+        // Oyuncuya temas
+        const distP = Math.hypot(player.x - orbs[i].x, player.y - orbs[i].y);
+        if (distP < player.radius + orbs[i].radius) {
+            player.gainXp(orbs[i].value);
+            orbs.splice(i, 1);
+        }
+    }
+
+    // Düşmanlar
+    for (let i = enemies.length - 1; i >= 0; i--) {
+        // Safe zone içindeyse iter
+        let inSafe = false;
+        zones.forEach(z => {
+            if (z.type === 'safe' && Math.hypot(enemies[i].x - z.x, enemies[i].y - z.y) < z.radius) {
+                inSafe = true;
+                const angle = Math.atan2(enemies[i].y - z.y, enemies[i].x - z.x);
+                enemies[i].x += Math.cos(angle) * 2.5;
+                enemies[i].y += Math.sin(angle) * 2.5;
+            }
+        });
+        if (!inSafe) enemies[i].update();
+        else enemies[i].draw(); // Sadece çiz, hareket etme
+    }
+
+    drawUI();
+}
+
+animate();
