@@ -6,7 +6,7 @@ Bu dosya, proje süresince kullanılan yapay zeka araçlarının kayıtlarını 
 ## Kullanım Tablosu
 
 <details>
-<summary>📅 2025-05-02 — Claude (Refaktör / Mimari)</summary>
+<summary>📅 02-05-2026 — Claude (Refaktör / Mimari)</summary>
 
 <details>
 <summary>🧠 Prompt</summary>
