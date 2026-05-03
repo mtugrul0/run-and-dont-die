@@ -1,4 +1,4 @@
-# 📋 Görev Dağılımı — Wizard of Chaos
+# 📋 Görev Dağılımı — Run and Don't Die
 
 Bu dosya, iki öğrenci arasındaki görev dağılımını GitHub Issue tarzı checklist formatında tanımlar.
 
@@ -6,7 +6,7 @@ Bu dosya, iki öğrenci arasındaki görev dağılımını GitHub Issue tarzı c
 
 ---
 
-## 🔴 Soleil — Core Systems & Gameplay
+## ☀️ Soleil — Core Systems & Gameplay
 
 ### A1. Config ve Input Modüllerini Migre Et
 **Assignee:** Soleil  
@@ -238,15 +238,15 @@ Bu dosya, iki öğrenci arasındaki görev dağılımını GitHub Issue tarzı c
 ## 📅 Önerilen Çalışma Sırası
 
 ```
-Hafta 1 (İkisi Paralel):
+1. Adım (İkisi Paralel):
 ├── Soleil: A1 → A2 → A5
 └── Froid: B1 → B2 → B3, B4
 
-Hafta 2 (Birleşme + Yeni Özellikler):
+2. Adım (Birleşme + Yeni Özellikler):
 ├── Soleil: A3 → A4 → A6 (birleştirme)
 └── Froid: B5 → B6 (asset entegrasyonu)
 
-Hafta 3 (Polish + Test):
+3. Adım (Polish + Test):
 ├── Soleil: A7 → A8 (yeni ekranlar)
 └── Froid: B7 → B8 (minimap + krediler)
 
