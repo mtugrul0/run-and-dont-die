@@ -12,13 +12,13 @@ Bu dosya, iki öğrenci arasındaki görev dağılımını GitHub Issue tarzı c
 **Assignee:** Soleil  
 **Depends on:** —
 
-- [ ] `js/config.js` — game.js'den tüm sabitleri (MAP_WIDTH, MAP_HEIGHT, CLASS_STATS, XP_COLLECT_RADIUS) ES module export olarak taşı
-- [ ] `js/config.js` — UPGRADE_POOL dizisini buraya taşı (apply fonksiyonları sonra bağlanacak)
-- [ ] `js/config.js` — WEAPON_TYPES dizisini oluştur (`['pompali', 'taramali', 'sniper']`)
-- [ ] `js/input.js` — InputManager sınıfı/objesi oluştur: keys state, mouse state, event listener'ları kaydet
-- [ ] `js/input.js` — Drone mod değiştirme (Q tuşu) için callback mekanizması ekle
-- [ ] `js/input.js` — Scroll wheel handler'ı taşı (slot değiştirme callback'i ile)
-- [ ] Her iki dosyayı test et: console.log ile sabitlerin doğru export edildiğini doğrula
+- [x] `js/config.js` — game.js'den tüm sabitleri (MAP_WIDTH, MAP_HEIGHT, CLASS_STATS, XP_COLLECT_RADIUS) ES module export olarak taşı
+- [x] `js/config.js` — UPGRADE_POOL dizisini buraya taşı (apply fonksiyonları sonra bağlanacak)
+- [x] `js/config.js` — WEAPON_TYPES dizisini oluştur (`['pompali', 'taramali', 'sniper']`)
+- [x] `js/input.js` — InputManager sınıfı/objesi oluştur: keys state, mouse state, event listener'ları kaydet
+- [x] `js/input.js` — Drone mod değiştirme (Q tuşu) için callback mekanizması ekle
+- [x] `js/input.js` — Scroll wheel handler'ı taşı (slot değiştirme callback'i ile)
+- [x] Her iki dosyayı test et: console.log ile sabitlerin doğru export edildiğini doğrula
 
 ---
 
