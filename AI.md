@@ -76,7 +76,7 @@ The single game.js contains these logical sections in order:
 
 Create exactly this structure with empty files (or files containing only a top-of-file TODO comment):
 
-wizard-of-chaos/
+run-and-dont-die/
 ├── index.html                  ← already exists, keep as-is
 ├── README.md                   ← you will write this
 ├── AI.md                       ← you will scaffold this
