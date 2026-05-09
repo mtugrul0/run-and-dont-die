@@ -26,19 +26,19 @@ Bu dosya, iki öğrenci arasındaki görev dağılımını GitHub Issue tarzı c
 **Assignee:** Soleil  
 **Depends on:** A1
 
-- [ ] `js/entities/Player.js` — Player class'ını game.js:53-208'den taşı, ES module export ekle
-- [ ] Player.js — ctx/camera/enemies/projectiles bağımlılıklarını constructor parametre veya GameState injection ile çöz
-- [ ] Player.js — gainXp() içindeki triggerUpgradeCards() çağrısını callback olarak al
-- [ ] Player.js — takeDamage() içindeki isPaused doğrudan atamasını callback ile değiştir
-- [ ] `js/entities/Drone.js` — Drone class'ını game.js:211-266'dan taşı
-- [ ] Drone.js — orbs[], enemies[] referanslarını GameState injection ile çöz
-- [ ] `js/entities/Enemy.js` — Enemy class'ını game.js:361-406'dan taşı
-- [ ] Enemy.js — player referansını injection ile çöz
-- [ ] `js/entities/Projectile.js` — Projectile class'ını game.js:269-286'dan taşı
-- [ ] `js/entities/ExperienceOrb.js` — ExperienceOrb class'ını game.js:408-434'ten taşı
-- [ ] `js/entities/Zone.js` — Zone class'ını game.js:288-319'dan taşı
-- [ ] `js/entities/WeaponDrop.js` — WeaponDrop class'ını game.js:322-358'den taşı
-- [ ] Tüm entity'lerin bağımsız olarak import edilebildiğini test et
+- [x] `js/entities/Player.js` — Player class'ını game.js:53-208'den taşı, ES module export ekle
+- [x] Player.js — ctx/camera/enemies/projectiles bağımlılıklarını constructor parametre veya GameState injection ile çöz
+- [x] Player.js — gainXp() içindeki triggerUpgradeCards() çağrısını callback olarak al
+- [x] Player.js — takeDamage() içindeki isPaused doğrudan atamasını callback ile değiştir
+- [x] `js/entities/Drone.js` — Drone class'ını game.js:211-266'dan taşı
+- [x] Drone.js — orbs[], enemies[] referanslarını GameState injection ile çöz
+- [x] `js/entities/Enemy.js` — Enemy class'ını game.js:361-406'dan taşı
+- [x] Enemy.js — player referansını injection ile çöz
+- [x] `js/entities/Projectile.js` — Projectile class'ını game.js:269-286'dan taşı
+- [x] `js/entities/ExperienceOrb.js` — ExperienceOrb class'ını game.js:408-434'ten taşı
+- [x] `js/entities/Zone.js` — Zone class'ını game.js:288-319'dan taşı
+- [x] `js/entities/WeaponDrop.js` — WeaponDrop class'ını game.js:322-358'den taşı
+- [x] Tüm entity'lerin bağımsız olarak import edilebildiğini test et
 
 ---
 
