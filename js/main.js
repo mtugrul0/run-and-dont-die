@@ -19,6 +19,7 @@
  *     (e.g. enemies array, projectiles array, isPaused flag)
  */
 
+import { UpgradeSystem } from './systems/UpgradeSystem.js';
 import { inputManager } from './input.js';
 import { drawMap } from './renderer/MapRenderer.js';
 import { drawUI } from './renderer/UIRenderer.js';
@@ -31,25 +32,20 @@ const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
+const gameState = { isPaused: false };
 const camera = { x: 0, y: 0 };
 const enemies = [];
 const projectiles = [];
 const orbs = [];
 
-inputManager.init(canvas, {
-    onDroneToggle: () => drone.changeMode(),
-    onSlotChange: (dir) => {
-        player.currentSlot = (player.currentSlot + dir + player.maxSlots) % player.maxSlots;
-    }
-});
-
 const player = new Player(1500, 1500, 'ninja', {
     ctx, camera, canvas,
     enemies, projectiles,
-    onLevelUp: () => console.log('Level up!'),
+    onLevelUp: () => upgradeSystem.triggerUpgradeCards(),
     onEnemyKilled: (enemy, index) => enemies.splice(index, 1),
     onDeath: () => console.log('Öldün!'),
     input: inputManager  // ← değişti
+    
 });
 
 const drone = new Drone(player, { orbs, enemies, projectiles });
@@ -57,13 +53,44 @@ const drone = new Drone(player, { orbs, enemies, projectiles });
 enemies.push(new Enemy(1600, 1500));
 enemies.push(new Enemy(1400, 1600));
 
+const upgradeSystem = new UpgradeSystem({
+    player: player,
+    gameState: gameState
+});
+
+inputManager.init(canvas, {
+    onDroneToggle: () => drone.changeMode(),
+    onSlotChange: (dir) => {
+        player.currentSlot = (player.currentSlot + dir + player.maxSlots) % player.maxSlots;
+    },
+    onLeftClick: (x, y) => {
+        if (gameState.isPaused) upgradeSystem.handleCardClick(x, y);
+    }
+});
+
+setTimeout(() => upgradeSystem.triggerUpgradeCards(), 2000);
+
 function animate() {
     requestAnimationFrame(animate);
+    
     drawMap(ctx, camera, canvas);
-    player.update();
-    drone.update(ctx, camera);
-    enemies.forEach(e => e.update(ctx, camera, player));
+    
+    if (!gameState.isPaused) {
+        player.update();
+        drone.update(ctx, camera);
+        enemies.forEach(e => e.update(ctx, camera, player));
+    } else {
+        // pause'da sadece çiz, update etme
+        player.draw();
+        drone.draw(ctx, camera);
+        enemies.forEach(e => e.draw(ctx, camera));
+    }
+    
     drawUI(ctx, canvas, player, drone, enemies);
+    
+    if (gameState.isPaused) {
+        upgradeSystem.drawCards(ctx, canvas);
+    }
 }
 
 animate();
