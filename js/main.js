@@ -18,3 +18,52 @@
  *   - Must expose a shared GameState object so entity/system modules can reference each other
  *     (e.g. enemies array, projectiles array, isPaused flag)
  */
+
+import { inputManager } from './input.js';
+import { drawMap } from './renderer/MapRenderer.js';
+import { drawUI } from './renderer/UIRenderer.js';
+import { Player } from './entities/Player.js';
+import { Drone } from './entities/Drone.js';
+import { Enemy } from './entities/Enemy.js';
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const camera = { x: 0, y: 0 };
+const enemies = [];
+const projectiles = [];
+const orbs = [];
+
+inputManager.init(canvas, {
+    onDroneToggle: () => drone.changeMode(),
+    onSlotChange: (dir) => {
+        player.currentSlot = (player.currentSlot + dir + player.maxSlots) % player.maxSlots;
+    }
+});
+
+const player = new Player(1500, 1500, 'ninja', {
+    ctx, camera, canvas,
+    enemies, projectiles,
+    onLevelUp: () => console.log('Level up!'),
+    onEnemyKilled: (enemy, index) => enemies.splice(index, 1),
+    onDeath: () => console.log('Öldün!'),
+    input: inputManager  // ← değişti
+});
+
+const drone = new Drone(player, { orbs, enemies, projectiles });
+
+enemies.push(new Enemy(1600, 1500));
+enemies.push(new Enemy(1400, 1600));
+
+function animate() {
+    requestAnimationFrame(animate);
+    drawMap(ctx, camera, canvas);
+    player.update();
+    drone.update(ctx, camera);
+    enemies.forEach(e => e.update(ctx, camera, player));
+    drawUI(ctx, canvas, player, drone, enemies);
+}
+
+animate();
