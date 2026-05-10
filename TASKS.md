@@ -132,10 +132,10 @@ Bu dosya, iki öğrenci arasındaki görev dağılımını GitHub Issue tarzı c
 **Assignee:** Froid  
 **Depends on:** A1 (config.js gerekli)
 
-- [ ] `js/renderer/MapRenderer.js` — drawMap() fonksiyonunu taşı (game.js:502-549)
-- [ ] Fonksiyon parametreleri: `(ctx, camera, canvas, MAP_WIDTH, MAP_HEIGHT)`
-- [ ] ES module export olarak dışa aktar
-- [ ] Grid çizgileri, sınır duvarları, uyarı overlay doğru çalışıyor mu test et
+- [x] `js/renderer/MapRenderer.js` — drawMap() fonksiyonunu taşı (game.js:502-549)
+- [x] Fonksiyon parametreleri: `(ctx, camera, canvas, MAP_WIDTH, MAP_HEIGHT)`
+- [x] ES module export olarak dışa aktar
+- [x] Grid çizgileri, sınır duvarları, uyarı overlay doğru çalışıyor mu test et
 
 ---
 
@@ -143,10 +143,10 @@ Bu dosya, iki öğrenci arasındaki görev dağılımını GitHub Issue tarzı c
 **Assignee:** Froid  
 **Depends on:** A1 (config.js gerekli)
 
-- [ ] `js/renderer/UIRenderer.js` — drawUI() fonksiyonunu taşı (game.js:551-625)
-- [ ] Fonksiyon parametreleri: `(ctx, canvas, player, drone, enemies)`
-- [ ] Can barı, XP barı, seviye, drone modu, envanter, düşman sayısı, mad buff — tümünü test et
-- [ ] ES module export olarak dışa aktar
+- [x] `js/renderer/UIRenderer.js` — drawUI() fonksiyonunu taşı (game.js:551-625)
+- [x] Fonksiyon parametreleri: `(ctx, canvas, player, drone, enemies)`
+- [x] Can barı, XP barı, seviye, drone modu, envanter, düşman sayısı, mad buff — tümünü test et
+- [x] ES module export olarak dışa aktar
 
 ---
 
@@ -154,12 +154,12 @@ Bu dosya, iki öğrenci arasındaki görev dağılımını GitHub Issue tarzı c
 **Assignee:** Froid  
 **Depends on:** A1 (UPGRADE_POOL config'de)
 
-- [ ] `js/systems/UpgradeSystem.js` — triggerUpgradeCards() taşı (game.js:448-458)
-- [ ] drawCards() taşı (game.js:460-488)
-- [ ] handleCardClick() taşı (game.js:490-500)
-- [ ] getXpRadius() helper'ını taşı (game.js:446)
-- [ ] UPGRADE_POOL.apply() içindeki player referanslarını injection ile çöz
-- [ ] Kart seçme + pause/unpause akışını test et
+- [x] `js/systems/UpgradeSystem.js` — triggerUpgradeCards() taşı (game.js:448-458)
+- [x] drawCards() taşı (game.js:460-488)
+- [x] handleCardClick() taşı (game.js:490-500)
+- [x] getXpRadius() helper'ını taşı (game.js:446)
+- [x] UPGRADE_POOL.apply() içindeki player referanslarını injection ile çöz
+- [x] Kart seçme + pause/unpause akışını test et
 
 ---
 

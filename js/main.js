@@ -19,6 +19,7 @@
  *     (e.g. enemies array, projectiles array, isPaused flag)
  */
 
+import { loadAllAssets, assets } from './assets/AssetLoader.js';
 import { UpgradeSystem } from './systems/UpgradeSystem.js';
 import { inputManager } from './input.js';
 import { drawMap } from './renderer/MapRenderer.js';
@@ -68,7 +69,6 @@ inputManager.init(canvas, {
     }
 });
 
-setTimeout(() => upgradeSystem.triggerUpgradeCards(), 2000);
 
 function animate() {
     requestAnimationFrame(animate);
@@ -93,4 +93,12 @@ function animate() {
     }
 }
 
-animate();
+async function init() {
+    await loadAllAssets((progress) => {
+        console.log(`Yükleniyor: ${Math.round(progress * 100)}%`);
+    });
+    console.log('Tüm assetler yüklendi:', assets);
+    animate();
+}
+
+init();
