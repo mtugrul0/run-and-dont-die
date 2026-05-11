@@ -13,3 +13,20 @@
  *   - Extract follow logic here so Player no longer directly mutates camera
  *   - Canvas dimensions needed for centering — pass as parameters or store reference
  */
+
+export class Camera {
+    constructor() {
+        this.x = 0;
+        this.y = 0;
+    }
+
+    /**
+     * @param {{ x: number, y: number }} target
+     * @param {number}                   canvasWidth   
+     * @param {number}                   canvasHeight  
+     */
+    follow(target, canvasWidth, canvasHeight) {
+        this.x = target.x - canvasWidth / 2;
+        this.y = target.y - canvasHeight / 2;
+    }
+}

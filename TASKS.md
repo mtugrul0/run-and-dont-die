@@ -78,9 +78,9 @@ Bu dosya, iki öğrenci arasındaki görev dağılımını GitHub Issue tarzı c
 **Assignee:** Soleil  
 **Depends on:** A1
 
-- [ ] `js/renderer/Camera.js` — camera objesini (game.js:13) class olarak oluştur
-- [ ] follow(target, canvasWidth, canvasHeight) metodu ekle (game.js:121-122 logic)
-- [ ] Player.update()'ten camera mutation'ı kaldır, Camera.follow() kullan
+- [x] `js/renderer/Camera.js` — camera objesini (game.js:13) class olarak oluştur
+- [x] follow(target, canvasWidth, canvasHeight) metodu ekle (game.js:121-122 logic)
+- [x] Player.update()'ten camera mutation'ı kaldır, Camera.follow() kullan
 
 ---
 
