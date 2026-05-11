@@ -18,3 +18,108 @@
  *   - Must expose a shared GameState object so entity/system modules can reference each other
  *     (e.g. enemies array, projectiles array, isPaused flag)
  */
+
+import { loadAllAssets, assets } from './assets/AssetLoader.js';
+import { UpgradeSystem } from './systems/UpgradeSystem.js';
+import { inputManager } from './input.js';
+import { drawMap } from './renderer/MapRenderer.js';
+import { drawUI } from './renderer/UIRenderer.js';
+import { Player } from './entities/Player.js';
+import { Drone } from './entities/Drone.js';
+import { Enemy } from './entities/Enemy.js';
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const gameState = { isPaused: false };
+const camera = { x: 0, y: 0 };
+const enemies = [];
+const projectiles = [];
+const orbs = [];
+
+const player = new Player(1500, 1500, 'ninja', {
+    ctx, camera, canvas,
+    enemies, projectiles,
+    onLevelUp: () => upgradeSystem.triggerUpgradeCards(),
+    onEnemyKilled: (enemy, index) => enemies.splice(index, 1),
+    onDeath: () => console.log('Öldün!'),
+    input: inputManager  // ← değişti
+    
+});
+
+const drone = new Drone(player, { orbs, enemies, projectiles });
+
+enemies.push(new Enemy(1600, 1500));
+enemies.push(new Enemy(1400, 1600));
+
+const upgradeSystem = new UpgradeSystem({
+    player: player,
+    gameState: gameState
+});
+
+inputManager.init(canvas, {
+    
+    onDroneToggle: () => drone.changeMode(),
+    onSlotChange: (dir) => {
+        player.currentSlot = (player.currentSlot + dir + player.maxSlots) % player.maxSlots;
+    },
+    onLeftClick: (x, y) => {
+        if (gameState.isPaused) upgradeSystem.handleCardClick(x, y);
+    }
+});
+
+
+function animate() {
+    requestAnimationFrame(animate);
+    
+    drawMap(ctx, camera, canvas);
+    
+    // GEÇİCİ TEST — sprite görünüyor mu
+    if (assets.images.ninja_idle) {
+    const frameWidth = 200;
+    const frameHeight = 200;
+    const totalFrames = 6;
+    const fps = 8;
+    const frameIndex = Math.floor(Date.now() / (1000 / fps)) % totalFrames;
+    
+    const screenX = player.x - camera.x - frameWidth / 2;
+    const screenY = player.y - camera.y - frameHeight / 2;
+    
+    ctx.drawImage(
+        assets.images.ninja_idle,
+        frameIndex * frameWidth, 0,
+        frameWidth, frameHeight,
+        screenX, screenY,
+        frameWidth, frameHeight
+    );
+}
+    
+    if (!gameState.isPaused) {
+        player.update();
+        drone.update(ctx, camera);
+        enemies.forEach(e => e.update(ctx, camera, player));
+    } else {
+        player.draw();
+        drone.draw(ctx, camera);
+        enemies.forEach(e => e.draw(ctx, camera));
+    }
+    
+    drawUI(ctx, canvas, player, drone, enemies);
+    
+    if (gameState.isPaused) {
+        upgradeSystem.drawCards(ctx, canvas);
+    }
+}
+
+async function init() {
+    console.log('Assets:', assets);
+    await loadAllAssets((progress) => {
+        console.log(`Yükleniyor: ${Math.round(progress * 100)}%`);
+    });
+    console.log('Tüm assetler yüklendi:', assets);
+    animate();
+}
+
+init();

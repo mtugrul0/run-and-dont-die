@@ -13,3 +13,98 @@
  *   - Asset manifest should list all files in assets/images/ and assets/audio/
  *   - main.js should await loadAllAssets() before starting the game loop
  */
+
+const manifest = {
+    images: {
+
+    ninja_idle:    'assets/images/player/ninja/Idle.png',
+    ninja_run:     'assets/images/player/ninja/Run.png',
+    ninja_attack1: 'assets/images/player/ninja/Attack1.png',
+    ninja_attack2: 'assets/images/player/ninja/Attack2.png',
+    ninja_death:   'assets/images/player/ninja/Death.png',
+    ninja_hit:     'assets/images/player/ninja/Take_hit.png',
+
+    wizard_idle:    'assets/images/player/wizard/Idle.png',
+    wizard_run:     'assets/images/player/wizard/Run.png',
+    wizard_attack1: 'assets/images/player/wizard/Attack1.png',
+    wizard_attack2: 'assets/images/player/wizard/Attack2.png',
+    wizard_death:   'assets/images/player/wizard/Death.png',
+    wizard_hit:     'assets/images/player/wizard/Hit.png',
+
+    king_idle:    'assets/images/player/king/Idle.png',
+    king_run:     'assets/images/player/king/Run.png',
+    king_attack1: 'assets/images/player/king/Attack_1.png',
+    king_attack2: 'assets/images/player/king/Attack_2.png',
+    king_death:   'assets/images/player/king/Death.png',
+    king_hit:     'assets/images/player/king/Hit.png',
+},
+
+    audio: {
+        bgm_ninja: 'assets/audio/bgm/ninja.mp3',
+        bgm_kovboy: 'assets/audio/bgm/kovboy.mp3',
+        bgm_yeniceri: 'assets/audio/bgm/yeniceri.mp3',
+        
+        attack_ninja: 'assets/audio/sfx/attack_ninja.wav',
+        attack_kovboy: 'assets/audio/sfx/attack_kovboy.wav',
+        attack_yeniceri: 'assets/audio/sfx/attack_yeniceri.wav',
+        
+        death_ninja: 'assets/audio/sfx/death_ninja.wav',
+        death_kovboy: 'assets/audio/sfx/death_kovboy.wav',
+        death_yeniceri: 'assets/audio/sfx/death_yeniceri.wav',
+        
+        levelup_ninja: 'assets/audio/sfx/levelup_ninja.wav',
+        levelup_kovboy: 'assets/audio/sfx/levelup_kovboy.wav',
+        levelup_yeniceri: 'assets/audio/sfx/levelup_yeniceri.wav',
+
+        hit: 'assets/audio/sfx/hit.wav',
+        pickup: 'assets/audio/sfx/pickup.wav',
+        gameover: 'assets/audio/sfx/gameover.wav',
+    }
+};
+
+export const assets = { 
+    images: {}, 
+    audio: {} 
+};
+
+function loadImage(path) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error(`Failed to load image: ${path}`));
+        img.src = path;
+    });
+}
+
+function loadAudio(path) {
+    return new Promise((resolve, reject) => {
+        const audio = new Audio();
+        audio.oncanplaythrough = () => resolve(audio);
+        audio.onerror = () => reject(new Error(`Failed to load audio: ${path}`));
+        audio.src = path;
+    });
+}
+
+export async function loadAllAssets(onProgress) {
+    const allEntries = [
+        ...Object.entries(manifest.images).map(([key, path]) => ({ key, path, type: 'image' })),
+        ...Object.entries(manifest.audio).map(([key, path]) => ({ key, path, type: 'audio' }))
+    ];
+
+    let loaded = 0;
+    const total = allEntries.length;
+
+    for (const entry of allEntries) {
+        try {
+            if (entry.type === 'image') {
+                assets.images[entry.key] = await loadImage(entry.path);
+            } else {
+                assets.audio[entry.key] = await loadAudio(entry.path);
+            }
+        } catch (e) {
+            console.warn(`Yüklenemedi: ${entry.path}`);
+        }
+        loaded++;
+        if (onProgress) onProgress(loaded / total); // 0.0 → 1.0 arası
+    }
+}
