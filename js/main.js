@@ -60,6 +60,7 @@ const upgradeSystem = new UpgradeSystem({
 });
 
 inputManager.init(canvas, {
+    
     onDroneToggle: () => drone.changeMode(),
     onSlotChange: (dir) => {
         player.currentSlot = (player.currentSlot + dir + player.maxSlots) % player.maxSlots;
@@ -75,12 +76,31 @@ function animate() {
     
     drawMap(ctx, camera, canvas);
     
+    // GEÇİCİ TEST — sprite görünüyor mu
+    if (assets.images.ninja_idle) {
+    const frameWidth = 200;
+    const frameHeight = 200;
+    const totalFrames = 6;
+    const fps = 8;
+    const frameIndex = Math.floor(Date.now() / (1000 / fps)) % totalFrames;
+    
+    const screenX = player.x - camera.x - frameWidth / 2;
+    const screenY = player.y - camera.y - frameHeight / 2;
+    
+    ctx.drawImage(
+        assets.images.ninja_idle,
+        frameIndex * frameWidth, 0,
+        frameWidth, frameHeight,
+        screenX, screenY,
+        frameWidth, frameHeight
+    );
+}
+    
     if (!gameState.isPaused) {
         player.update();
         drone.update(ctx, camera);
         enemies.forEach(e => e.update(ctx, camera, player));
     } else {
-        // pause'da sadece çiz, update etme
         player.draw();
         drone.draw(ctx, camera);
         enemies.forEach(e => e.draw(ctx, camera));
@@ -94,6 +114,7 @@ function animate() {
 }
 
 async function init() {
+    console.log('Assets:', assets);
     await loadAllAssets((progress) => {
         console.log(`Yükleniyor: ${Math.round(progress * 100)}%`);
     });

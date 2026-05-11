@@ -12,3 +12,70 @@
  *   - Provide named triggers: playBGM(), playSFX('attack'), playSFX('hit'), playSFX('pickup'), playSFX('levelup')
  *   - Respect browser autoplay policies — resume AudioContext on first user gesture
  */
+
+export class AudioManager {
+    constructor () {
+        this.bgm = null;
+        this.sfx = {};
+        this.masterVolume = 1;
+        this.isMuted = false;
+        this._started = false; // Autoplay politikası için
+    }
+
+    init () {
+    // Kullanıcı ilk tıklayınca veya tuşa basınca çalışır
+    const resume = () => {
+        if (!this._started) {
+            this._started = true;
+            // artık ses çalabilir
+            document.removeEventListener('click', resume);
+            document.removeEventListener('keydown', resume);
+        }
+    };
+    document.addEventListener('click', resume);
+    document.addEventListener('keydown', resume);       
+    }
+
+    playBGM(audioElement) {
+        if (this.bgm) {
+            this.bgm.pause();
+            this.bgm.currentTime = 0;
+        }
+        this.bgm = audioElement;
+        this.bgm.loop = true;
+        this.bgm.volume = this.isMuted ? 0 : this.masterVolume;
+        this.bgm.play();
+    }
+    stopBGM() {
+        if (this.bgm) {
+            this.bgm.pause();
+            this.bgm.currentTime = 0;
+        }
+    }
+
+    playSFX(audioElement) {
+        const sfx = audioElement.cloneNode(); // Aynı anda birden fazla çalabilmek için klonla
+        sfx.volume = this.isMuted ? 0 : this.masterVolume;
+        sfx.play();
+     }
+    setVolume(level) {
+        this.masterVolume = level;
+        if (this.bgm) {
+            this.bgm.volume = this.isMuted ? 0 : this.masterVolume;
+        }
+     }
+    mute() {
+        this.isMuted = true;
+        if (this.bgm) {
+            this.bgm.volume = 0;
+        }
+    }
+    unmute() {
+        this.isMuted = false;
+        if (this.bgm) {
+            this.bgm.volume = this.masterVolume;
+        }
+    }
+}
+
+export const audioManager = new AudioManager();
