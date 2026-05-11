@@ -31,6 +31,7 @@ import { Enemy } from './entities/Enemy.js';
 import { CollisionSystem } from './systems/CollisionSystem.js';
 import { SpawnSystem } from './systems/SpawnSystem.js';
 import { UpgradeSystem } from './systems/UpgradeSystem.js';
+import { loadAllAssets } from './assets/AssetLoader.js';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -147,4 +148,11 @@ function selectionLoop() {
     selectionScreen.update();
     requestAnimationFrame(selectionLoop);
 }
-selectionLoop();
+
+// Önce tüm asset'leri yükle, sonra seçim ekranını başlat
+loadAllAssets((progress) => {
+    console.log(`Asset yükleniyor: ${Math.floor(progress * 100)}%`);
+}).then(() => {
+    console.log('Tüm asset\'ler yüklendi!');
+    selectionLoop();
+});

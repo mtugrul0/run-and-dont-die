@@ -11,26 +11,57 @@
  *   - Collision with player (lines 396-402) calls player.takeDamage() — keep as-is with injected ref
  *   - draw() uses ctx, camera — pass as parameters
  */
+
+import { ENEMY_SPRITE_DATA } from "../config.js";
+import { assets } from "../assets/AssetLoader.js";
+
 export class Enemy {
-    constructor(x, y) {
+    constructor(x, y, enemyType = 'flying_eye') {
         this.x = x; this.y = y;
         this.radius = 12;
         this.speed = 1.2;
         this.health = 15;
         this.maxHealth = 15;
-        this.damage = 1; 
+        this.damage = 1;
         this.lastAttackTime = 0;
-        this.attackCooldown = 800; // ms
+        this.attackCooldown = 800;
+
+        this.enemyType = enemyType;
+        this.spriteData = ENEMY_SPRITE_DATA[enemyType];
+        this.animFrame = 0;
+        this.animTimer = 0;
+        this.animSpeed = 100;
+        this.facingLeft = false;
+
     };
-    
+
     draw(ctx, camera) {
         const dx = this.x - camera.x;
         const dy = this.y - camera.y;
 
-        ctx.beginPath();
-        ctx.arc(dx, dy, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = '#e74c3c'; ctx.fill();
+        const sd = this.spriteData;
+        const img = sd ? assets.images[sd.key] : null;
 
+        if (img) {
+            const drawSize = this.radius * sd.scale;
+            const sx = this.animFrame * sd.frameW;
+
+            ctx.save();
+            if (this.facingLeft) {
+                ctx.translate(dx, dy);
+                ctx.scale(-1, 1);
+                ctx.drawImage(img, sx, 0, sd.frameW, sd.frameH, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
+            } else {
+                ctx.drawImage(img, sx, 0, sd.frameW, sd.frameH, dx - drawSize / 2, dy - drawSize / 2, drawSize, drawSize);
+            }
+            ctx.restore();
+        } else {
+            ctx.beginPath();
+            ctx.arc(dx, dy, this.radius, 0, Math.PI * 2);
+            ctx.fillStyle = '#e74c3c'; ctx.fill();
+        }
+
+        // can barı
         const barW = this.radius * 2;
         const barH = 4;
         const bx = dx - this.radius;
@@ -40,6 +71,7 @@ export class Enemy {
         ctx.fillStyle = '#e74c3c';
         ctx.fillRect(bx, by, barW * (this.health / this.maxHealth), barH);
     };
+
 
     update(ctx, camera, player) {
         const angle = Math.atan2(player.y - this.y, player.x - this.x);

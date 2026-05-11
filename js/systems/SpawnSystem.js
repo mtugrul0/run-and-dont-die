@@ -79,7 +79,10 @@ export class SpawnSystem {
         x = Math.max(0, Math.min(MAP_WIDTH, x));
         y = Math.max(0, Math.min(MAP_HEIGHT, y));
 
-        this._enemies.push(new Enemy(x, y));
+        const types = ['flying_eye', 'goblin', 'mushroom', 'skeleton'];
+        const type = types[Math.floor(Math.random() * types.length)];
+        this._enemies.push(new Enemy(x, y, type));
+
     }
 
     _spawnItemFrame() {
