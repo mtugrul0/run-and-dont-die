@@ -12,11 +12,25 @@
  */
 
 import { MAP_WIDTH, MAP_HEIGHT } from '../config.js'; 
+import { assets } from '../assets/AssetLoader.js';
 
 export function drawMap(ctx, camera, canvas) {
     // Harita arka planı 
     ctx.fillStyle = '#222';
     ctx.fillRect(0, 0, canvas.width, canvas.height);  
+    // Zemin texture'ı — harita boyunca tekrarla (tile)
+    if (assets.images.map_floor) {
+    const tileSize = 512; // texture boyutu
+    const startX = Math.floor(camera.x / tileSize) * tileSize;
+    const startY = Math.floor(camera.y / tileSize) * tileSize;
+    
+    for (let x = startX; x < camera.x + canvas.width; x += tileSize) {
+        for (let y = startY; y < camera.y + canvas.height; y += tileSize) {
+            if (x > MAP_WIDTH || y > MAP_HEIGHT || x + tileSize < 0 || y + tileSize < 0) continue;
+            ctx.drawImage(assets.images.map_floor, x - camera.x, y - camera.y, tileSize, tileSize);
+            }   
+        }
+    }
 
     // Izgara çizgileri
     const gridSize = 100;

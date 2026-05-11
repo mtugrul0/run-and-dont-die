@@ -299,4 +299,23 @@ Buraya alınan cevap yazılacak.
 
 </details>
 
+<details>
+<summary>📅 11-05-2026 — Google Gemini • Zemin Texture Üretimi</summary>
+
+<details>
+<summary>🧠 Prompt</summary>
+
+top-down dark stone floor texture, pixel art style, seamless, dungeon, 1024x1024
+
+</details>
+
+<details>
+<summary>🤖 Cevap</summary>
+
+Karanlık taş zemin texture'ı üretildi. assets/images/ui/zemin.png olarak kaydedildi.
+
+</details>
+
+</details>
+
 </details>
