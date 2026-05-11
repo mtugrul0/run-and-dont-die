@@ -21,13 +21,13 @@
 
 import { MAP_WIDTH, MAP_HEIGHT } from './config.js';
 import { CharacterSelectScreen } from './screens/CharacterSelectScreen.js';
+import { GameOverScreen } from './screens/GameOverScreen.js';
 import { inputManager } from './input.js';
 import { Camera } from './renderer/Camera.js';
 import { drawMap } from './renderer/MapRenderer.js';
 import { drawUI } from './renderer/UIRenderer.js';
 import { Player } from './entities/Player.js';
 import { Drone } from './entities/Drone.js';
-import { Enemy } from './entities/Enemy.js';
 import { CollisionSystem } from './systems/CollisionSystem.js';
 import { SpawnSystem } from './systems/SpawnSystem.js';
 import { UpgradeSystem } from './systems/UpgradeSystem.js';
@@ -42,55 +42,79 @@ window.addEventListener('resize', () => {
     canvas.height = window.innerHeight;
 });
 
-const camera = new Camera();
-
-const gameState = {
-    isPaused: false,
-    enemies: [],
-    projectiles: [],
-    orbs: [],
-    zones: [],
-    weaponDrops: [],
-    MAP_WIDTH,
-    MAP_HEIGHT,
-    ctx,
-    camera,
-    canvas,
-    player: null,
-    drone: null
-};
+let _animRafId = null;
 
 
-const spawnSystem = new SpawnSystem({
-    gameState,
-    camera,
-    canvas,
-    player: gameState.player,
-    enemies: gameState.enemies,
-    zones: gameState.zones,
-    weaponDrops: gameState.weaponDrops
-});
+function startGame(chosenClass) {
 
-let upgradeSystem;
+    const gameStartTime = Date.now();
+    let killCount = 0;
 
-function animate() {
-    if (gameState.isPaused) {
-        upgradeSystem.drawCards(ctx, canvas);
-        requestAnimationFrame(animate);
-        return;
+    const camera = new Camera();
+
+    const gameState = {
+        isPaused: false,
+        isGameOver: false,
+        enemies: [],
+        projectiles: [],
+        orbs: [],
+        zones: [],
+        weaponDrops: [],
+        MAP_WIDTH,
+        MAP_HEIGHT,
+        ctx,
+        camera,
+        canvas,
+        player: null,
+        drone: null
+    };
+
+    const spawnSystem = new SpawnSystem({
+        gameState,
+        camera,
+        canvas,
+        player: gameState.player,
+        enemies: gameState.enemies,
+        zones: gameState.zones,
+        weaponDrops: gameState.weaponDrops
+    });
+
+    let upgradeSystem;
+
+    function animate() {
+        if (gameState.isGameOver) return;
+
+        _animRafId = requestAnimationFrame(animate);
+
+        if (gameState.isPaused) {
+            upgradeSystem.drawCards(ctx, canvas);
+            return;
+        }
+
+        drawMap(ctx, camera, canvas, MAP_WIDTH, MAP_HEIGHT);
+        CollisionSystem.update(gameState);
+        gameState.player.update();
+        gameState.drone.update(ctx, camera);
+        drawUI(ctx, canvas, gameState.player, gameState.drone, gameState.enemies);
     }
-    requestAnimationFrame(animate);
 
-    drawMap(ctx, camera, canvas, MAP_WIDTH, MAP_HEIGHT);
+    function handleDeath() {
+        gameState.isPaused = true;
+        gameState.isGameOver = true;
+        spawnSystem.stop();
 
-    CollisionSystem.update(gameState);
+        const survivedSeconds = Math.floor((Date.now() - gameStartTime) / 1000);
 
-    gameState.player.update();
-    gameState.drone.update(ctx, camera);
+        setTimeout(() => {
+            new GameOverScreen(
+                canvas,
+                ctx,
+                { survivedSeconds, killCount },
+                () => restartGame()
+            );
+        }, 120);
+    }
 
-    drawUI(ctx, canvas, gameState.player, gameState.drone, gameState.enemies);
-}
-const selectionScreen = new CharacterSelectScreen(canvas, ctx, (chosenClass) => {
     gameState.player = new Player(MAP_WIDTH / 2, MAP_HEIGHT / 2, chosenClass, {
         ctx,
         camera,
@@ -98,22 +122,11 @@ const selectionScreen = new CharacterSelectScreen(canvas, ctx, (chosenClass) => 
         enemies: gameState.enemies,
         projectiles: gameState.projectiles,
         onLevelUp: () => upgradeSystem.triggerUpgradeCards(),
-        onEnemyKilled: (enemy, index) =>
-            CollisionSystem.handleEnemyDeath(enemy, index, gameState.enemies, gameState.orbs),
-        onDeath: () => {
-            gameState.isPaused = true;
-            setTimeout(() => {
-                ctx.fillStyle = 'rgba(0,0,0,0.8)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#ff4444';
-                ctx.font = 'bold 60px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('ÖLDÜN!', canvas.width / 2, canvas.height / 2);
-                ctx.fillStyle = 'white';
-                ctx.font = '24px Arial';
-                ctx.fillText('Sayfayı yenileyerek tekrar oyna', canvas.width / 2, canvas.height / 2 + 50);
-            }, 100);
+        onEnemyKilled: (enemy, index) => {
+            killCount++;
+            CollisionSystem.handleEnemyDeath(enemy, index, gameState.enemies, gameState.orbs);
         },
+        onDeath: handleDeath,
         input: inputManager
     });
 
@@ -141,10 +154,33 @@ const selectionScreen = new CharacterSelectScreen(canvas, ctx, (chosenClass) => 
 
     spawnSystem.start();
     animate();
-});
-
-function selectionLoop() {
-    selectionScreen.update();
-    requestAnimationFrame(selectionLoop);
 }
-selectionLoop();
+
+function restartGame() {
+    if (_animRafId !== null) {
+        cancelAnimationFrame(_animRafId);
+        _animRafId = null;
+    }
+
+    showCharacterSelect();
+}
+
+function showCharacterSelect() {
+    let selectionRafId = null;
+
+    const selectionScreen = new CharacterSelectScreen(canvas, ctx, (chosenClass) => {
+        if (selectionRafId !== null) {
+            cancelAnimationFrame(selectionRafId);
+            selectionRafId = null;
+        }
+        startGame(chosenClass);
+    });
+
+    function selectionLoop() {
+        selectionScreen.update();
+        selectionRafId = requestAnimationFrame(selectionLoop);
+    }
+    selectionLoop();
+}
+
+showCharacterSelect();
