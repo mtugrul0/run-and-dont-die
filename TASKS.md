@@ -66,11 +66,11 @@ Bu dosya, iki öğrenci arasındaki görev dağılımını GitHub Issue tarzı c
 **Assignee:** Soleil  
 **Depends on:** A2
 
-- [ ] `js/systems/SpawnSystem.js` — Düşman spawn logic'ini taşı (game.js:641-656, setInterval 1000ms)
-- [ ] Item spawn logic'ini taşı (game.js:658-675, rAF loop, luck-scaled cooldown)
-- [ ] isPaused kontrolünü GameState'den al
-- [ ] Spawn edilen nesneleri doğru dizilere push ettiğini doğrula
-- [ ] start() / stop() metodları ekle
+- [x] `js/systems/SpawnSystem.js` — Düşman spawn logic'ini taşı (game.js:641-656, setInterval 1000ms)
+- [x] Item spawn logic'ini taşı (game.js:658-675, rAF loop, luck-scaled cooldown)
+- [x] isPaused kontrolünü GameState'den al
+- [x] Spawn edilen nesneleri doğru dizilere push ettiğini doğrula
+- [x] start() / stop() metodları ekle
 
 ---
 
