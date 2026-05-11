@@ -54,11 +54,7 @@ Bu dosya, iki öğrenci arasındaki görev dağılımını GitHub Issue tarzı c
 - [x] Player ↔ Zone (mad buff) kontrolünü taşı (game.js:688-700)
 - [x] Enemy ↔ Zone (safe repel) kontrolünü taşı (game.js:761-774)
 - [x] `update(gameState)` fonksiyonu olarak dışa aktar
-<<<<<<< HEAD
 - [x] Tüm çarpışma senaryolarını oyun içinde test et
-=======
-- [ ] Tüm çarpışma senaryolarını oyun içinde test et
->>>>>>> f2d2db524efdbc5e5abd8f1f8585bad3c32b46fd
 
 ---
 
@@ -88,21 +84,21 @@ Bu dosya, iki öğrenci arasındaki görev dağılımını GitHub Issue tarzı c
 **Assignee:** Soleil  
 **Depends on:** A1, A2, A3, A4, A5, B1, B2
 
-- [ ] `js/main.js` — Canvas/ctx oluştur + resize listener ekle (game.js:1-8)
-- [ ] GameState objesi oluştur: player, drone, enemies[], orbs[], zones[], weaponDrops[], projectiles[], isPaused
-- [ ] Tüm modülleri import et
-- [ ] Player, Drone nesnelerini oluştur
-- [ ] InputManager'ı başlat ve callback'leri bağla
-- [ ] SpawnSystem'ı başlat
-- [ ] animate() ana döngüsünü yaz (game.js:677-780 sırasıyla):
+- [x] `js/main.js` — Canvas/ctx oluştur + resize listener ekle (game.js:1-8)
+- [x] GameState objesi oluştur: player, drone, enemies[], orbs[], zones[], weaponDrops[], projectiles[], isPaused
+- [x] Tüm modülleri import et
+- [x] Player, Drone nesnelerini oluştur
+- [x] InputManager'ı başlat ve callback'leri bağla
+- [x] SpawnSystem'ı başlat
+- [x] animate() ana döngüsünü yaz (game.js:677-780 sırasıyla):
   1. drawMap()
   2. CollisionSystem.update() — zone + weapon + projectile + orb + enemy interactions
   3. player.update()
   4. drone.update()
   5. drawUI()
-- [ ] isPaused durumunda drawCards() çağır
-- [ ] Oyunu başlat: animate() ve spawnItems() çağır
-- [ ] Oyunun monolith ile aynı davrandığını uçtan uca test et
+- [x] isPaused durumunda drawCards() çağır
+- [x] Oyunu başlat: animate() ve spawnItems() çağır
+- [x] Oyunun monolith ile aynı davrandığını uçtan uca test et
 
 ---
 
