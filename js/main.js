@@ -19,107 +19,132 @@
  *     (e.g. enemies array, projectiles array, isPaused flag)
  */
 
-import { loadAllAssets, assets } from './assets/AssetLoader.js';
-import { UpgradeSystem } from './systems/UpgradeSystem.js';
+import { MAP_WIDTH, MAP_HEIGHT } from './config.js';
+import { CharacterSelectScreen } from './screens/CharacterSelectScreen.js';
 import { inputManager } from './input.js';
+import { Camera } from './renderer/Camera.js';
 import { drawMap } from './renderer/MapRenderer.js';
 import { drawUI } from './renderer/UIRenderer.js';
 import { Player } from './entities/Player.js';
 import { Drone } from './entities/Drone.js';
 import { Enemy } from './entities/Enemy.js';
+import { CollisionSystem } from './systems/CollisionSystem.js';
+import { SpawnSystem } from './systems/SpawnSystem.js';
+import { UpgradeSystem } from './systems/UpgradeSystem.js';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-const gameState = { isPaused: false };
-const camera = { x: 0, y: 0 };
-const enemies = [];
-const projectiles = [];
-const orbs = [];
-
-const player = new Player(1500, 1500, 'ninja', {
-    ctx, camera, canvas,
-    enemies, projectiles,
-    onLevelUp: () => upgradeSystem.triggerUpgradeCards(),
-    onEnemyKilled: (enemy, index) => enemies.splice(index, 1),
-    onDeath: () => console.log('Öldün!'),
-    input: inputManager  // ← değişti
-    
+window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 });
 
-const drone = new Drone(player, { orbs, enemies, projectiles });
+const camera = new Camera();
 
-enemies.push(new Enemy(1600, 1500));
-enemies.push(new Enemy(1400, 1600));
+const gameState = {
+    isPaused: false,
+    enemies: [],
+    projectiles: [],
+    orbs: [],
+    zones: [],
+    weaponDrops: [],
+    MAP_WIDTH,
+    MAP_HEIGHT,
+    ctx,
+    camera,
+    canvas,
+    player: null,
+    drone: null
+};
 
-const upgradeSystem = new UpgradeSystem({
-    player: player,
-    gameState: gameState
+
+const spawnSystem = new SpawnSystem({
+    gameState,
+    camera,
+    canvas,
+    player: gameState.player,
+    enemies: gameState.enemies,
+    zones: gameState.zones,
+    weaponDrops: gameState.weaponDrops
 });
 
-inputManager.init(canvas, {
-    
-    onDroneToggle: () => drone.changeMode(),
-    onSlotChange: (dir) => {
-        player.currentSlot = (player.currentSlot + dir + player.maxSlots) % player.maxSlots;
-    },
-    onLeftClick: (x, y) => {
-        if (gameState.isPaused) upgradeSystem.handleCardClick(x, y);
-    }
-});
-
+let upgradeSystem;
 
 function animate() {
-    requestAnimationFrame(animate);
-    
-    drawMap(ctx, camera, canvas);
-    
-    // GEÇİCİ TEST — sprite görünüyor mu
-    if (assets.images.ninja_idle) {
-    const frameWidth = 200;
-    const frameHeight = 200;
-    const totalFrames = 6;
-    const fps = 8;
-    const frameIndex = Math.floor(Date.now() / (1000 / fps)) % totalFrames;
-    
-    const screenX = player.x - camera.x - frameWidth / 2;
-    const screenY = player.y - camera.y - frameHeight / 2;
-    
-    ctx.drawImage(
-        assets.images.ninja_idle,
-        frameIndex * frameWidth, 0,
-        frameWidth, frameHeight,
-        screenX, screenY,
-        frameWidth, frameHeight
-    );
-}
-    
-    if (!gameState.isPaused) {
-        player.update();
-        drone.update(ctx, camera);
-        enemies.forEach(e => e.update(ctx, camera, player));
-    } else {
-        player.draw();
-        drone.draw(ctx, camera);
-        enemies.forEach(e => e.draw(ctx, camera));
-    }
-    
-    drawUI(ctx, canvas, player, drone, enemies);
-    
     if (gameState.isPaused) {
         upgradeSystem.drawCards(ctx, canvas);
+        requestAnimationFrame(animate);
+        return;
     }
-}
+    requestAnimationFrame(animate);
 
-async function init() {
-    console.log('Assets:', assets);
-    await loadAllAssets((progress) => {
-        console.log(`Yükleniyor: ${Math.round(progress * 100)}%`);
+    drawMap(ctx, camera, canvas, MAP_WIDTH, MAP_HEIGHT);
+
+    CollisionSystem.update(gameState);
+
+    gameState.player.update();
+    gameState.drone.update(ctx, camera);
+
+    drawUI(ctx, canvas, gameState.player, gameState.drone, gameState.enemies);
+}
+const selectionScreen = new CharacterSelectScreen(canvas, ctx, (chosenClass) => {
+    gameState.player = new Player(MAP_WIDTH / 2, MAP_HEIGHT / 2, chosenClass, {
+        ctx,
+        camera,
+        canvas,
+        enemies: gameState.enemies,
+        projectiles: gameState.projectiles,
+        onLevelUp: () => upgradeSystem.triggerUpgradeCards(),
+        onEnemyKilled: (enemy, index) =>
+            CollisionSystem.handleEnemyDeath(enemy, index, gameState.enemies, gameState.orbs),
+        onDeath: () => {
+            gameState.isPaused = true;
+            setTimeout(() => {
+                ctx.fillStyle = 'rgba(0,0,0,0.8)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#ff4444';
+                ctx.font = 'bold 60px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('ÖLDÜN!', canvas.width / 2, canvas.height / 2);
+                ctx.fillStyle = 'white';
+                ctx.font = '24px Arial';
+                ctx.fillText('Sayfayı yenileyerek tekrar oyna', canvas.width / 2, canvas.height / 2 + 50);
+            }, 100);
+        },
+        input: inputManager
     });
-    console.log('Tüm assetler yüklendi:', assets);
-    animate();
-}
 
-init();
+    gameState.drone = new Drone(gameState.player, {
+        orbs: gameState.orbs,
+        enemies: gameState.enemies,
+        projectiles: gameState.projectiles
+    });
+
+    upgradeSystem = new UpgradeSystem({
+        player: gameState.player,
+        gameState
+    });
+
+    inputManager.init(canvas, {
+        onDroneToggle: () => gameState.drone.changeMode(),
+        onSlotChange: (dir) => {
+            const p = gameState.player;
+            p.currentSlot = (p.currentSlot + dir + p.inventory.length) % p.inventory.length;
+        },
+        onLeftClick: (x, y) => {
+            if (gameState.isPaused) upgradeSystem.handleCardClick(x, y);
+        }
+    });
+
+    spawnSystem.start();
+    animate();
+});
+
+function selectionLoop() {
+    selectionScreen.update();
+    requestAnimationFrame(selectionLoop);
+}
+selectionLoop();
