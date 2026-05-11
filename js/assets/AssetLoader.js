@@ -53,20 +53,20 @@ const manifest = {
 
     audio: {
         bgm_ninja: 'assets/audio/bgm/ninja.mp3',
-        bgm_kovboy: 'assets/audio/bgm/kovboy.mp3',
-        bgm_yeniceri: 'assets/audio/bgm/yeniceri.mp3',
+        bgm_wizard: 'assets/audio/bgm/wizard.mp3',
+        bgm_king: 'assets/audio/bgm/king.mp3',
 
         attack_ninja: 'assets/audio/sfx/attack_ninja.wav',
-        attack_kovboy: 'assets/audio/sfx/attack_kovboy.wav',
-        attack_yeniceri: 'assets/audio/sfx/attack_yeniceri.wav',
+        attack_wizard: 'assets/audio/sfx/attack_wizard.wav',
+        attack_king: 'assets/audio/sfx/attack_king.wav',
 
         death_ninja: 'assets/audio/sfx/death_ninja.wav',
-        death_kovboy: 'assets/audio/sfx/death_kovboy.wav',
-        death_yeniceri: 'assets/audio/sfx/death_yeniceri.wav',
+        death_wizard: 'assets/audio/sfx/death_wizard.wav',
+        death_king: 'assets/audio/sfx/death_king.wav',
 
         levelup_ninja: 'assets/audio/sfx/levelup_ninja.wav',
-        levelup_kovboy: 'assets/audio/sfx/levelup_kovboy.wav',
-        levelup_yeniceri: 'assets/audio/sfx/levelup_yeniceri.wav',
+        levelup_wizard: 'assets/audio/sfx/levelup_wizard.wav',
+        levelup_king: 'assets/audio/sfx/levelup_king.wav',
 
         hit: 'assets/audio/sfx/hit.wav',
         pickup: 'assets/audio/sfx/pickup.wav',

@@ -2,14 +2,14 @@ import { CLASS_STATS } from '../config.js';
 
 const SPRITE_MAP = {
     ninja: 'assets/images/player/ninja/Idle.png',
-    yeniceri: 'assets/images/player/king/Idle.png',
-    kovboy: 'assets/images/player/wizard/Idle.png'
+    wizard: 'assets/images/player/wizard/Idle.png',
+    king: 'assets/images/player/king/Idle.png'
 };
 
 const CLASS_LABELS = {
     ninja: 'NİNJA',
-    yeniceri: 'YENİÇERİ',
-    kovboy: 'KOVBOY'
+    wizard: 'WIZARD',
+    king: 'KING'
 };
 
 export class CharacterSelectScreen {
@@ -52,7 +52,7 @@ export class CharacterSelectScreen {
         const cardWidth = 180;
         const cardHeight = 280;
         const gap = 40;
-        const classes = ['ninja', 'yeniceri', 'kovboy'];
+        const classes = ['ninja', 'wizard', 'king'];
         const totalWidth = classes.length * cardWidth + (classes.length - 1) * gap;
         const startX = (w - totalWidth) / 2;
         const startY = (h - cardHeight) / 2 - 20;

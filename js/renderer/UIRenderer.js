@@ -17,7 +17,7 @@
 
 import { MAP_WIDTH, MAP_HEIGHT } from "../config.js";
 
-export function drawUI(ctx, canvas, player, drone, enemies) {
+export function drawUI(ctx, canvas, player, drone, enemies, zones, weaponDrops) {
     // Can barı 
     const CanbarW = 200, CanbarH = 18;
     const barX = 20;
@@ -110,7 +110,7 @@ export function drawUI(ctx, canvas, player, drone, enemies) {
         ctx.fillText('⚡ GÜÇ BÖLGE BUFFI AKTİF ⚡', canvas.width / 2, canvas.height - 100);
     }
 
-    drawMinimap(ctx, canvas, player, enemies, [], []);
+    drawMinimap(ctx, canvas, player, enemies, zones || [], weaponDrops || []);
 }
 //Minimap 
     export function drawMinimap(ctx, canvas, player, enemies, zones, weapons) {

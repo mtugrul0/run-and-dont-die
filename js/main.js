@@ -20,7 +20,7 @@
  */
 
 import { MAP_WIDTH, MAP_HEIGHT } from './config.js';
-import { CharacterSelectScreen } from './screens/CharacterSelectScreen.js';
+import { Menu } from './screens/Menu.js';
 import { inputManager } from './input.js';
 import { Camera } from './renderer/Camera.js';
 import { drawMap } from './renderer/MapRenderer.js';
@@ -66,7 +66,6 @@ const spawnSystem = new SpawnSystem({
     gameState,
     camera,
     canvas,
-    player: gameState.player,
     enemies: gameState.enemies,
     zones: gameState.zones,
     weaponDrops: gameState.weaponDrops
@@ -89,9 +88,9 @@ function animate() {
     gameState.player.update();
     gameState.drone.update(ctx, camera);
 
-    drawUI(ctx, canvas, gameState.player, gameState.drone, gameState.enemies);
+    drawUI(ctx, canvas, gameState.player, gameState.drone, gameState.enemies, gameState.zones, gameState.weaponDrops);
 }
-const selectionScreen = new CharacterSelectScreen(canvas, ctx, (chosenClass) => {
+const selectionScreen = new Menu(canvas, ctx, (chosenClass, soundOn) => {
     gameState.player = new Player(MAP_WIDTH / 2, MAP_HEIGHT / 2, chosenClass, {
         ctx,
         camera,

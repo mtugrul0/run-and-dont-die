@@ -15,15 +15,15 @@ export const MAP_WIDTH = 3000;
 export const MAP_HEIGHT = 3000;
 export const XP_COLLECT_RADIUS = 120;
 
-export const SELECTED_CLASS = 'ninja'; // Sonrasında açılış ekranında seçim yaptırmalıyız
 export const CLASS_STATS = {
     ninja: { color: '#a0e0ff', attackRange: 120, attackSpread: Math.PI / 2, maxHealth: 3, speed: 4.5, damage: 15, fireRate: 250, luck: 1.2, startWeapon: 'Katana' },
-    yeniceri: { color: '#ff6b6b', attackRange: 70, attackSpread: Math.PI / 1.5, maxHealth: 5, speed: 3.5, damage: 25, fireRate: 400, luck: 1.0, startWeapon: 'Tokat' },
-    kovboy: { color: '#f0c070', attackRange: 200, attackSpread: 0.1, maxHealth: 4, speed: 4.0, damage: 10, fireRate: 150, luck: 1.5, startWeapon: 'Kement' }
+    wizard: { color: '#f0c070', attackRange: 200, attackSpread: 0.1, maxHealth: 4, speed: 4.0, damage: 10, fireRate: 150, luck: 1.5, startWeapon: 'Kement' },
+    king: { color: '#ff6b6b', attackRange: 70, attackSpread: Math.PI / 1.5, maxHealth: 5, speed: 3.5, damage: 25, fireRate: 400, luck: 1.0, startWeapon: 'Tokat' },
 };
 
 export const UPGRADE_POOL = [
     {
+
         title: "Can Yenile",
         desc: "Tam can doldur",
         apply: (player) => player.health = player.maxHealth
@@ -67,7 +67,7 @@ export const SPRITE_DATA = {
         death: { key: 'ninja_death', frames: 6 },
         hit: { key: 'ninja_hit', frames: 4 },
     },
-    kovboy: {
+    wizard: {
         frameW: 231, frameH: 190, scale: 12,
         idle: { key: 'wizard_idle', frames: 6 },
         run: { key: 'wizard_run', frames: 8 },
@@ -75,7 +75,7 @@ export const SPRITE_DATA = {
         death: { key: 'wizard_death', frames: 7 },
         hit: { key: 'wizard_hit', frames: 4 },
     },
-    yeniceri: {
+    king: {
         frameW: 155, frameH: 155, scale: 12,
         idle: { key: 'king_idle', frames: 6 },
         run: { key: 'king_run', frames: 8 },
@@ -88,7 +88,7 @@ export const SPRITE_DATA = {
 export const ENEMY_SPRITE_DATA = {
     flying_eye: { key: 'enemy_flying_eye', frameW: 150, frameH: 150, frames: 6, scale: 20 },
     goblin: { key: 'enemy_goblin', frameW: 150, frameH: 150, frames: 12, scale: 20 },
-    mushroom: { key: 'enemy_mushroom', frameW: 150, frameH: 150, frames: 11, scale: 20 },
+    mushroom: { key: 'enemy_mushroom', frameW: 150, frameH: 150, frames: 11, scale: 15 },
     skeleton: { key: 'enemy_skeleton', frameW: 150, frameH: 150, frames: 6, scale: 20 },
 };
 
