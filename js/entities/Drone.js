@@ -11,24 +11,30 @@
  *   - Creates Projectile instances — import Projectile class
  *   - draw() uses ctx, camera — pass as parameters
  */
-import {Projectile} from "./Projectile.js"
+import { Projectile } from "./Projectile.js"
 export class Drone {
     constructor(owner, deps) {
         this.owner = owner;
-        this.x = owner.x; 
+        this.x = owner.x;
         this.y = owner.y;
+        //yarıçapı
         this.radius = 8;
+        // drone modları:
+        // 0 = heal mode
+        // 1 = orb collect mode
+        // 2 = attack mode
         this.mode = 0;
         this.actionTimer = Date.now();
 
-        this._orbs        = deps.orbs;
-        this._enemies     = deps.enemies;
+        this._orbs = deps.orbs;
+        this._enemies = deps.enemies;
         this._projectiles = deps.projectiles;
 
     };
-
-    changeMode() { 
-        this.mode = (this.mode + 1) % 3; 
+    // drone modunu değiştirir
+    // 0 -> 1 -> 2 -> 0
+    changeMode() {
+        this.mode = (this.mode + 1) % 3;
     };
 
     draw(ctx, camera) {
@@ -45,11 +51,13 @@ export class Drone {
         let targetX = this.owner.x - 40;
         let targetY = this.owner.y - 40;
 
+        // heal mode
         if (this.mode === 0 && Date.now() - this.actionTimer > 3000) {
             if (this.owner.health < this.owner.maxHealth) {
                 this.owner.health++;
                 this.actionTimer = Date.now();
             }
+            // orb toplama modu
         } else if (this.mode === 1 && this._orbs.length > 0) {
             let closest = this._orbs[0];
             let minDist = Math.hypot(closest.x - this.x, closest.y - this.y);
@@ -58,6 +66,8 @@ export class Drone {
                 if (d < minDist) { minDist = d; closest = orb; }
             }
             targetX = closest.x; targetY = closest.y;
+
+            // attack mode
         } else if (this.mode === 2 && this._enemies.length > 0 && Date.now() - this.actionTimer > 1500) {
             let closest = this._enemies[0];
             let minDist = Math.hypot(closest.x - this.x, closest.y - this.y);
@@ -74,6 +84,6 @@ export class Drone {
 
         this.x += (targetX - this.x) * 0.05;
         this.y += (targetY - this.y) * 0.05;
-        this.draw(ctx,camera);
+        this.draw(ctx, camera);
     }
 }
