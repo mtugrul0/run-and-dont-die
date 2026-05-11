@@ -15,6 +15,8 @@
  *   - Future: add drawMinimap() — shows scaled-down MAP with player dot + enemy dots + zone circles
  */
 
+import { MAP_WIDTH, MAP_HEIGHT } from "../config.js";
+
 export function drawUI(ctx, canvas, player, drone, enemies) {
     // Can barı 
     const CanbarW = 200, CanbarH = 18;
@@ -107,4 +109,51 @@ export function drawUI(ctx, canvas, player, drone, enemies) {
         ctx.font = 'bold 16px Arial';
         ctx.fillText('⚡ GÜÇ BÖLGE BUFFI AKTİF ⚡', canvas.width / 2, canvas.height - 100);
     }
+
+    drawMinimap(ctx, canvas, player, enemies, [], []);
 }
+//Minimap 
+    export function drawMinimap(ctx, canvas, player, enemies, zones, weapons) {
+        const minimapW = 200;
+        const minimapH = 200;
+        const minimapX = canvas.width - minimapW - 20;
+        const minimapY = canvas.height - minimapH - 20;
+        const scaleX  = minimapW / MAP_WIDTH;
+        const scaleY  = minimapH / MAP_HEIGHT;
+
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+        ctx.fillRect(minimapX, minimapY, minimapW, minimapH);
+
+        // Bölgeler
+        zones.forEach(zone => {
+            ctx.strokeStyle = zone.type === 'safe' ? 'rgba(46, 204, 113, 0.7)' : 'rgba(155, 89, 182, 0.7)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(minimapX + zone.x * scaleX, minimapY + zone.y * scaleY, zone.radius * scaleX, 0, Math.PI * 2);
+            ctx.stroke();
+        });
+
+        // Silahlar
+        weapons.forEach(weapon => {
+            ctx.fillStyle = '#f1c40f';
+            ctx.fillRect(minimapX + weapon.x * scaleX - 3, minimapY + weapon.y * scaleY - 3, 6, 6);
+        });
+
+        // Düşmanlar
+        enemies.forEach(enemy => {
+            ctx.fillStyle = '#e74c3c';
+            ctx.fillRect(minimapX + enemy.x * scaleX - 4, minimapY + enemy.y * scaleY - 4, 8, 8);
+        });
+
+        // Oyuncu
+        ctx.fillStyle = '#3498db';
+        ctx.beginPath();
+        ctx.arc(minimapX + player.x * scaleX, minimapY + player.y * scaleY, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // en sona ekle
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(minimapX, minimapY, minimapW, minimapH);
+
+    }
