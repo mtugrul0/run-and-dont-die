@@ -12,11 +12,11 @@
  *   - gainXp() calls triggerUpgradeCards() — inject callback or use event emitter
  *   - takeDamage() sets isPaused directly — decouple via callback
  */
-import {MAP_WIDTH, MAP_HEIGHT, XP_COLLECT_RADIUS, CLASS_STATS} from "../config.js"
-import {Projectile} from "./Projectile.js"
+import { MAP_WIDTH, MAP_HEIGHT, XP_COLLECT_RADIUS, CLASS_STATS } from "../config.js"
+import { Projectile } from "./Projectile.js"
 
-export class Player{
-    constructor(x, y, charClass, deps){
+export class Player {
+    constructor(x, y, charClass, deps) {
         // konum
         this.x = x;
         this.y = y;
@@ -26,36 +26,36 @@ export class Player{
         this.stats = { ...CLASS_STATS[charClass] }; // seçilen karakterin statlarını sığ koyaladı
         this.color = this.stats.color;
 
-        this.maxHealth      = this.stats.maxHealth;
-        this.health         = this.maxHealth;
-        this.speed          = this.stats.speed;
+        this.maxHealth = this.stats.maxHealth;
+        this.health = this.maxHealth;
+        this.speed = this.stats.speed;
 
-        this.level          = 0;
-        this.xp             = 0;
-        this.xpToNextLevel  = 50; // sonrasında iki level arası xp değişkenlik gösterebilir
+        this.level = 0;
+        this.xp = 0;
+        this.xpToNextLevel = 50; // sonrasında iki level arası xp değişkenlik gösterebilir
 
         this.lastAttackTime = 0;
-        this.isAttacking    = false;
-        this.attackAngle    = 0;
+        this.isAttacking = false;
+        this.attackAngle = 0;
 
-        this.lastHitTime    = 0;
-        this.hitCooldown    = 800;
+        this.lastHitTime = 0;
+        this.hitCooldown = 800;
 
-        this.madBuff        = false;
+        this.madBuff = false;
 
-        this.maxSlots       = 1;
-        this.currentSlot    = 0;
-        this.inventory      = [{ type: this.stats.startWeapon, isMelee: true, ammo: Infinity }];
+        this.maxSlots = 1;
+        this.currentSlot = 0;
+        this.inventory = [{ type: this.stats.startWeapon, isMelee: true, ammo: Infinity }];
 
-        this._ctx           = deps.ctx;
-        this._camera        = deps.camera;
-        this._canvas        = deps.canvas
-        this._enemies       = deps.enemies;
-        this._projectiles   = deps.projectiles;
-        this._onLevelUp     = deps.onLevelUp;
+        this._ctx = deps.ctx;
+        this._camera = deps.camera;
+        this._canvas = deps.canvas
+        this._enemies = deps.enemies;
+        this._projectiles = deps.projectiles;
+        this._onLevelUp = deps.onLevelUp;
         this._onEnemyKilled = deps.onEnemyKilled;
-        this._onDeath       = deps.onDeath;
-        this._input         = deps.input;
+        this._onDeath = deps.onDeath;
+        this._input = deps.input;
     };
 
     draw() {
@@ -86,9 +86,9 @@ export class Player{
             this._ctx.fill();
         }
     };
-    
+
     update() {
-        const effectiveSpeed = this.madBuff ? this.speed * 1.5 : this.speed; 
+        const effectiveSpeed = this.madBuff ? this.speed * 1.5 : this.speed;
 
         if (this._input.keys.w) this.y = Math.max(this.radius, this.y - effectiveSpeed);
         if (this._input.keys.s) this.y = Math.min(MAP_HEIGHT - this.radius, this.y + effectiveSpeed);
