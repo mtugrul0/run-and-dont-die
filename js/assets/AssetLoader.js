@@ -56,7 +56,8 @@ const manifest = {
         hit: 'assets/audio/sfx/hit.wav',
         pickup: 'assets/audio/sfx/pickup.wav',
         gameover: 'assets/audio/sfx/gameover.wav',
-    }
+    },
+    map_floor: 'assets/images/ui/zemin.png',
 };
 
 export const assets = { 
