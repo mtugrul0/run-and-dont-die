@@ -54,7 +54,11 @@ Bu dosya, iki öğrenci arasındaki görev dağılımını GitHub Issue tarzı c
 - [x] Player ↔ Zone (mad buff) kontrolünü taşı (game.js:688-700)
 - [x] Enemy ↔ Zone (safe repel) kontrolünü taşı (game.js:761-774)
 - [x] `update(gameState)` fonksiyonu olarak dışa aktar
+<<<<<<< HEAD
 - [x] Tüm çarpışma senaryolarını oyun içinde test et
+=======
+- [ ] Tüm çarpışma senaryolarını oyun içinde test et
+>>>>>>> f2d2db524efdbc5e5abd8f1f8585bad3c32b46fd
 
 ---
 
