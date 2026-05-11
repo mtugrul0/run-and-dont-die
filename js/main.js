@@ -19,7 +19,8 @@
  *     (e.g. enemies array, projectiles array, isPaused flag)
  */
 
-import { MAP_WIDTH, MAP_HEIGHT, SELECTED_CLASS } from './config.js';
+import { MAP_WIDTH, MAP_HEIGHT } from './config.js';
+import { CharacterSelectScreen } from './screens/CharacterSelectScreen.js';
 import { inputManager } from './input.js';
 import { Camera } from './renderer/Camera.js';
 import { drawMap } from './renderer/MapRenderer.js';
@@ -59,52 +60,6 @@ const gameState = {
     drone: null
 };
 
-gameState.player = new Player(MAP_WIDTH / 2, MAP_HEIGHT / 2, SELECTED_CLASS, {
-    ctx,
-    camera,
-    canvas,
-    enemies: gameState.enemies,
-    projectiles: gameState.projectiles,
-    onLevelUp: () => upgradeSystem.triggerUpgradeCards(),
-    onEnemyKilled: (enemy, index) => CollisionSystem.handleEnemyDeath(enemy, index, gameState.enemies, gameState.orbs),
-    onDeath: () => {
-        gameState.isPaused = true;
-        setTimeout(() => {
-            ctx.fillStyle = 'rgba(0,0,0,0.8)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#ff4444';
-            ctx.font = 'bold 60px Arial';
-            ctx.textAlign = 'center';
-            ctx.fillText('ÖLDÜN!', canvas.width / 2, canvas.height / 2);
-            ctx.fillStyle = 'white';
-            ctx.font = '24px Arial';
-            ctx.fillText('Sayfayı yenileyerek tekrar oyna', canvas.width / 2, canvas.height / 2 + 50);
-        }, 100);
-    },
-    input: inputManager
-});
-
-gameState.drone = new Drone(gameState.player, {
-    orbs: gameState.orbs,
-    enemies: gameState.enemies,
-    projectiles: gameState.projectiles
-});
-
-const upgradeSystem = new UpgradeSystem({
-    player: gameState.player,
-    gameState: gameState
-});
-
-inputManager.init(canvas, {
-    onDroneToggle: () => gameState.drone.changeMode(),
-    onSlotChange: (dir) => {
-        const p = gameState.player;
-        p.currentSlot = (p.currentSlot + dir + p.inventory.length) % p.inventory.length;
-    },
-    onLeftClick: (x, y) => {
-        if (gameState.isPaused) upgradeSystem.handleCardClick(x, y);
-    }
-});
 
 const spawnSystem = new SpawnSystem({
     gameState,
@@ -116,7 +71,7 @@ const spawnSystem = new SpawnSystem({
     weaponDrops: gameState.weaponDrops
 });
 
-spawnSystem.start();
+let upgradeSystem;
 
 function animate() {
     if (gameState.isPaused) {
@@ -135,5 +90,61 @@ function animate() {
 
     drawUI(ctx, canvas, gameState.player, gameState.drone, gameState.enemies);
 }
+const selectionScreen = new CharacterSelectScreen(canvas, ctx, (chosenClass) => {
+    gameState.player = new Player(MAP_WIDTH / 2, MAP_HEIGHT / 2, chosenClass, {
+        ctx,
+        camera,
+        canvas,
+        enemies: gameState.enemies,
+        projectiles: gameState.projectiles,
+        onLevelUp: () => upgradeSystem.triggerUpgradeCards(),
+        onEnemyKilled: (enemy, index) =>
+            CollisionSystem.handleEnemyDeath(enemy, index, gameState.enemies, gameState.orbs),
+        onDeath: () => {
+            gameState.isPaused = true;
+            setTimeout(() => {
+                ctx.fillStyle = 'rgba(0,0,0,0.8)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#ff4444';
+                ctx.font = 'bold 60px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('ÖLDÜN!', canvas.width / 2, canvas.height / 2);
+                ctx.fillStyle = 'white';
+                ctx.font = '24px Arial';
+                ctx.fillText('Sayfayı yenileyerek tekrar oyna', canvas.width / 2, canvas.height / 2 + 50);
+            }, 100);
+        },
+        input: inputManager
+    });
 
-animate();
+    gameState.drone = new Drone(gameState.player, {
+        orbs: gameState.orbs,
+        enemies: gameState.enemies,
+        projectiles: gameState.projectiles
+    });
+
+    upgradeSystem = new UpgradeSystem({
+        player: gameState.player,
+        gameState
+    });
+
+    inputManager.init(canvas, {
+        onDroneToggle: () => gameState.drone.changeMode(),
+        onSlotChange: (dir) => {
+            const p = gameState.player;
+            p.currentSlot = (p.currentSlot + dir + p.inventory.length) % p.inventory.length;
+        },
+        onLeftClick: (x, y) => {
+            if (gameState.isPaused) upgradeSystem.handleCardClick(x, y);
+        }
+    });
+
+    spawnSystem.start();
+    animate();
+});
+
+function selectionLoop() {
+    selectionScreen.update();
+    requestAnimationFrame(selectionLoop);
+}
+selectionLoop();

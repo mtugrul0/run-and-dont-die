@@ -106,11 +106,11 @@ Bu dosya, iki öğrenci arasındaki görev dağılımını GitHub Issue tarzı c
 **Assignee:** Soleil  
 **Depends on:** A6
 
-- [ ] Oyun başlamadan önce bir seçim ekranı göster
-- [ ] 3 buton: Ninja / Yeniçeri / Kovboy — her birinin statlarını göster
-- [ ] Seçime göre `SELECTED_CLASS` belirle ve Player'ı o class ile oluştur
-- [ ] Seçim ekranını Canvas üzerine çiz (DOM elementi değil)
-- [ ] Seçim yapılmadan oyun döngüsü başlamamalı
+- [x] Oyun başlamadan önce bir seçim ekranı göster
+- [x] 3 buton: Ninja / Yeniçeri / Kovboy — her birinin statlarını göster
+- [x] Seçime göre `SELECTED_CLASS` belirle ve Player'ı o class ile oluştur
+- [x] Seçim ekranını Canvas üzerine çiz (DOM elementi değil)
+- [x] Seçim yapılmadan oyun döngüsü başlamamalı
 
 ---
 
