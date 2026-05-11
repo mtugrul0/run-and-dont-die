@@ -46,15 +46,15 @@ Bu dosya, iki öğrenci arasındaki görev dağılımını GitHub Issue tarzı c
 **Assignee:** Soleil  
 **Depends on:** A2
 
-- [ ] `js/systems/CollisionSystem.js` — handleEnemyDeath() helper'ını taşı (game.js:636-639)
-- [ ] Projectile ↔ Enemy çarpışma kontrolünü taşı (game.js:722-740)
-- [ ] Player ↔ ExperienceOrb toplama kontrolünü taşı (game.js:742-758)
-- [ ] Drone ↔ ExperienceOrb toplama kontrolünü taşı (game.js:747-752)
-- [ ] Player ↔ WeaponDrop toplama kontrolünü taşı (game.js:702-716)
-- [ ] Player ↔ Zone (mad buff) kontrolünü taşı (game.js:688-700)
-- [ ] Enemy ↔ Zone (safe repel) kontrolünü taşı (game.js:761-774)
-- [ ] `update(gameState)` fonksiyonu olarak dışa aktar
-- [ ] Tüm çarpışma senaryolarını oyun içinde test et
+- [x] `js/systems/CollisionSystem.js` — handleEnemyDeath() helper'ını taşı (game.js:636-639)
+- [x] Projectile ↔ Enemy çarpışma kontrolünü taşı (game.js:722-740)
+- [x] Player ↔ ExperienceOrb toplama kontrolünü taşı (game.js:742-758)
+- [x] Drone ↔ ExperienceOrb toplama kontrolünü taşı (game.js:747-752)
+- [x] Player ↔ WeaponDrop toplama kontrolünü taşı (game.js:702-716)
+- [x] Player ↔ Zone (mad buff) kontrolünü taşı (game.js:688-700)
+- [x] Enemy ↔ Zone (safe repel) kontrolünü taşı (game.js:761-774)
+- [x] `update(gameState)` fonksiyonu olarak dışa aktar
+- [x] Tüm çarpışma senaryolarını oyun içinde test et
 
 ---
 
