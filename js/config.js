@@ -22,11 +22,12 @@ export const CLASS_STATS = {
 };
 
 export const ENEMY_STATS = {
-    flying_eye: { health: 20, speed: 2.0, damage: 1, radius: 12 },
-    goblin:     { health: 25, speed: 1.5, damage: 2, radius: 14 },
-    mushroom:   { health: 35, speed: 1.0, damage: 3, radius: 16 },
-    skeleton:   { health: 50, speed: 0.8, damage: 4, radius: 18 }
+    flying_eye: { radius: 15, health: 20, speed: 2, damage: 1, attackCooldown: 1000 },
+    goblin: { radius: 15, health: 25, speed: 3, damage: 2, attackCooldown: 800 },
+    mushroom: { radius: 15, health: 35, speed: 4, damage: 3, attackCooldown: 600 },
+    skeleton: { radius: 15, health: 50, speed: 5, damage: 4, attackCooldown: 500 },
 };
+
 
 export const UPGRADE_POOL = [
     {
@@ -47,13 +48,13 @@ export const UPGRADE_POOL = [
     },
     {
         title: "Hız+",
-        desc: "+0.5 Hareket Hızı",
-        apply: (player) => player.speed += 0.5
+        desc: "+0.1 Hareket Hızı",
+        apply: (player) => player.speed += 0.1
     },
     {
         title: "Şans+",
         desc: "Daha çok eşya düşer",
-        apply: (player) => player.stats.luck += 0.3
+        apply: (player) => player.stats.luck += 0.1
     },
     {
         title: "XP Manyeti+",

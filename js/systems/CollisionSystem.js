@@ -80,17 +80,16 @@ function update(gameState) {
             if (Math.hypot(projectiles[i].x - enemies[j].x, projectiles[i].y - enemies[j].y) <
                 projectiles[i].radius + enemies[j].radius) {
                 enemies[j].health -= projectiles[i].damage;
-                
+
                 const hitSfx = assets.audio.hit;
                 if (hitSfx) audioManager.playSFX(hitSfx);
-                
+
                 if (enemies[j].health <= 0) handleEnemyDeath(enemies[j], j, enemies, orbs);
                 projectiles.splice(i, 1);
                 hit = true;
                 break;
             }
         }
-        if (hit) continue;
     }
 
     const xpRadius = XP_COLLECT_RADIUS + (player._xpBonus || 0);

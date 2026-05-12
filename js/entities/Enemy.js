@@ -90,6 +90,15 @@ export class Enemy {
             }
         }
 
+        this.animTimer += 16;
+        if (this.animTimer >= this.animSpeed) {
+            this.animTimer = 0;
+            if (this.spriteData) {
+                this.animFrame = (this.animFrame + 1) % this.spriteData.frames;
+            }
+        }
+        this.facingLeft = player.x < this.x;
+
         this.draw(ctx, camera);
     };
 }
