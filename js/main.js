@@ -31,7 +31,8 @@ import { Enemy } from './entities/Enemy.js';
 import { CollisionSystem } from './systems/CollisionSystem.js';
 import { SpawnSystem } from './systems/SpawnSystem.js';
 import { UpgradeSystem } from './systems/UpgradeSystem.js';
-import { loadAllAssets } from './assets/AssetLoader.js';
+import { loadAllAssets, assets } from './assets/AssetLoader.js';
+import { audioManager } from './assets/AudioManager.js';
 import { GameOverScreen } from './screens/GameOverScreen.js';
 
 const canvas = document.getElementById('gameCanvas');
@@ -43,6 +44,8 @@ window.addEventListener('resize', () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 });
+
+audioManager.init();
 
 const camera = new Camera();
 
@@ -97,6 +100,9 @@ const selectionScreen = new Menu(canvas, ctx, (chosenClass, soundOn) => {
     cancelAnimationFrame(selectionRafId);
     gameState.gameStartTime = performance.now();
 
+    audioManager.isMuted = !soundOn;
+    audioManager.playBGM(assets.audio['bgm_' + chosenClass]);
+
     gameState.player = new Player(MAP_WIDTH / 2, MAP_HEIGHT / 2, chosenClass, {
         ctx,
         camera,
@@ -110,6 +116,7 @@ const selectionScreen = new Menu(canvas, ctx, (chosenClass, soundOn) => {
         },
         onDeath: () => {
             gameState.isPaused = true;
+            audioManager.playBGM(assets.audio.bgm_rip);
             const survivedSeconds = Math.floor((performance.now() - gameState.gameStartTime) / 1000);
             new GameOverScreen(canvas, ctx, { survivedSeconds, killCount: gameState.killCount }, () => {
                 window.location.reload();
@@ -155,5 +162,8 @@ loadAllAssets((progress) => {
     console.log(`Asset yükleniyor: ${Math.floor(progress * 100)}%`);
 }).then(() => {
     console.log('Tüm asset\'ler yüklendi!');
+    // Tarayıcı autoplay politikası nedeniyle ilk başta ses çalmayabilir, 
+    // kullanıcı tıkladığında başlaması gerekebilir.
+    audioManager.playBGM(assets.audio.bgm_menu);
     selectionLoop();
 });

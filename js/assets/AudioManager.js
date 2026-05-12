@@ -27,6 +27,9 @@ export class AudioManager {
     const resume = () => {
         if (!this._started) {
             this._started = true;
+            if (this.bgm && this.bgm.paused) {
+                this.bgm.play().catch(e => console.warn("Otomatik oynatma devam edemedi:", e));
+            }
             // artık ses çalabilir
             document.removeEventListener('click', resume);
             document.removeEventListener('keydown', resume);
@@ -37,14 +40,20 @@ export class AudioManager {
     }
 
     playBGM(audioElement) {
-        if (this.bgm) {
+        if (!audioElement) return;
+        if (this.bgm && this.bgm !== audioElement) {
             this.bgm.pause();
             this.bgm.currentTime = 0;
         }
         this.bgm = audioElement;
         this.bgm.loop = true;
         this.bgm.volume = this.isMuted ? 0 : this.masterVolume;
-        this.bgm.play();
+        const playPromise = this.bgm.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                console.warn("Autoplay engellendi, etkileşim bekleniyor:", error);
+            });
+        }
     }
     stopBGM() {
         if (this.bgm) {

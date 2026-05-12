@@ -1,4 +1,5 @@
 import { CLASS_STATS } from '../config.js';
+import { audioManager } from '../assets/AudioManager.js';
 
 const SPRITE_MAP = {
     ninja: 'assets/images/player/ninja/Idle.png',
@@ -490,6 +491,11 @@ export class Menu {
         // Ses butonu
         if (this._isInBounds(x, y, this._soundBtnBounds)) {
             this.soundOn = !this.soundOn;
+            if (this.soundOn) {
+                audioManager.unmute();
+            } else {
+                audioManager.mute();
+            }
             return;
         }
 

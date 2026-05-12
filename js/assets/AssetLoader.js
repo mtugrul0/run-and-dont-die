@@ -52,25 +52,19 @@ const manifest = {
     },
 
     audio: {
-        bgm_ninja: 'assets/audio/bgm/ninja.mp3',
-        bgm_wizard: 'assets/audio/bgm/wizard.mp3',
-        bgm_king: 'assets/audio/bgm/king.mp3',
+        bgm_ninja: 'assets/audio/bgm/ninja.ogg',
+        bgm_wizard: 'assets/audio/bgm/wizard.ogg',
+        bgm_king: 'assets/audio/bgm/king.ogg',
+        bgm_menu: 'assets/audio/bgm/menu.ogg',
+        bgm_rip: 'assets/audio/bgm/rip.ogg',
 
         attack_ninja: 'assets/audio/sfx/attack_ninja.wav',
         attack_wizard: 'assets/audio/sfx/attack_wizard.wav',
         attack_king: 'assets/audio/sfx/attack_king.wav',
 
-        death_ninja: 'assets/audio/sfx/death_ninja.wav',
-        death_wizard: 'assets/audio/sfx/death_wizard.wav',
-        death_king: 'assets/audio/sfx/death_king.wav',
-
-        levelup_ninja: 'assets/audio/sfx/levelup_ninja.wav',
-        levelup_wizard: 'assets/audio/sfx/levelup_wizard.wav',
-        levelup_king: 'assets/audio/sfx/levelup_king.wav',
-
-        hit: 'assets/audio/sfx/hit.wav',
-        pickup: 'assets/audio/sfx/pickup.wav',
-        gameover: 'assets/audio/sfx/gameover.wav',
+        death: 'assets/audio/sfx/death.wav',
+        levelup: 'assets/audio/sfx/lvlup.wav',
+        gun: 'assets/audio/sfx/gun.wav',
     },
 };
 

@@ -14,6 +14,7 @@
  */
 import { MAP_WIDTH, MAP_HEIGHT, XP_COLLECT_RADIUS, CLASS_STATS, SPRITE_DATA } from "../config.js"
 import { assets } from "../assets/AssetLoader.js"
+import { audioManager } from "../assets/AudioManager.js"
 import { Projectile } from "./Projectile.js"
 
 export class Player {
@@ -23,6 +24,7 @@ export class Player {
         this.y = y;
         // yarıçapımız
         this.radius = 15;
+        this.charClass = charClass;
 
         this.stats = { ...CLASS_STATS[charClass] }; // seçilen karakterin statlarını sığ koyaladı
         // sprite animasyon
@@ -155,6 +157,10 @@ export class Player {
         const worldMouseY = this._input.mouse.y + this._camera.y;
         this.attackAngle = Math.atan2(worldMouseY - this.y, worldMouseX - this.x);
 
+        const soundKey = weapon.isMelee ? 'attack_' + this.charClass : 'gun';
+        const attackSound = assets.audio[soundKey];
+        if (attackSound) audioManager.playSFX(attackSound);
+
         const effectiveDamage = this.madBuff ? this.stats.damage * 1.5 : this.stats.damage;
 
         if (weapon.isMelee) {
@@ -167,6 +173,9 @@ export class Player {
                     while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
                     if (Math.abs(angleDiff) <= this.stats.attackSpread) {
                         enemy.health -= effectiveDamage;
+                        const hitSfx = assets.audio.hit;
+                        if (hitSfx) audioManager.playSFX(hitSfx);
+                        
                         if (enemy.health <= 0) this._onEnemyKilled(enemy, index);
                     }
                 }
@@ -195,9 +204,15 @@ export class Player {
         if (Date.now() - this.lastHitTime < this.hitCooldown) return;
         this.lastHitTime = Date.now();
         this.health -= amount;
+        
         if (this.health <= 0) {
             this.health = 0;
+            const deathSound = assets.audio.death;
+            if (deathSound) audioManager.playSFX(deathSound);
             this._onDeath();
+        } else {
+            const hitSound = assets.audio.hit;
+            if (hitSound) audioManager.playSFX(hitSound);
         }
     };
 
@@ -208,6 +223,10 @@ export class Player {
             this.xp -= this.xpToNextLevel;
             this.xpToNextLevel = Math.floor(this.xpToNextLevel * 1.5);
             if (this.level % 3 === 0 && this.maxSlots < 4) this.maxSlots++;
+
+            const levelupSound = assets.audio.levelup;
+            if (levelupSound) audioManager.playSFX(levelupSound);
+
             this._onLevelUp();
         }
     };
