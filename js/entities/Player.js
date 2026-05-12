@@ -207,7 +207,7 @@ export class Player {
             this.level++;
             this.xp -= this.xpToNextLevel;
             this.xpToNextLevel = Math.floor(this.xpToNextLevel * 1.5);
-            if (this.level % 3 === 0 && this.maxSlots < 3) this.maxSlots++;
+            if (this.level % 3 === 0 && this.maxSlots < 4) this.maxSlots++;
             this._onLevelUp();
         }
     };

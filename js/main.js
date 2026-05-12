@@ -32,6 +32,7 @@ import { CollisionSystem } from './systems/CollisionSystem.js';
 import { SpawnSystem } from './systems/SpawnSystem.js';
 import { UpgradeSystem } from './systems/UpgradeSystem.js';
 import { loadAllAssets } from './assets/AssetLoader.js';
+import { GameOverScreen } from './screens/GameOverScreen.js';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -47,6 +48,8 @@ const camera = new Camera();
 
 const gameState = {
     isPaused: false,
+    killCount: 0,
+    gameStartTime: 0,
     enemies: [],
     projectiles: [],
     orbs: [],
@@ -91,6 +94,9 @@ function animate() {
     drawUI(ctx, canvas, gameState.player, gameState.drone, gameState.enemies, gameState.zones, gameState.weaponDrops);
 }
 const selectionScreen = new Menu(canvas, ctx, (chosenClass, soundOn) => {
+    cancelAnimationFrame(selectionRafId);
+    gameState.gameStartTime = performance.now();
+
     gameState.player = new Player(MAP_WIDTH / 2, MAP_HEIGHT / 2, chosenClass, {
         ctx,
         camera,
@@ -98,21 +104,16 @@ const selectionScreen = new Menu(canvas, ctx, (chosenClass, soundOn) => {
         enemies: gameState.enemies,
         projectiles: gameState.projectiles,
         onLevelUp: () => upgradeSystem.triggerUpgradeCards(),
-        onEnemyKilled: (enemy, index) =>
-            CollisionSystem.handleEnemyDeath(enemy, index, gameState.enemies, gameState.orbs),
+        onEnemyKilled: (enemy, index) => {
+            gameState.killCount++;
+            CollisionSystem.handleEnemyDeath(enemy, index, gameState.enemies, gameState.orbs);
+        },
         onDeath: () => {
             gameState.isPaused = true;
-            setTimeout(() => {
-                ctx.fillStyle = 'rgba(0,0,0,0.8)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#ff4444';
-                ctx.font = 'bold 60px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('ÖLDÜN!', canvas.width / 2, canvas.height / 2);
-                ctx.fillStyle = 'white';
-                ctx.font = '24px Arial';
-                ctx.fillText('Sayfayı yenileyerek tekrar oyna', canvas.width / 2, canvas.height / 2 + 50);
-            }, 100);
+            const survivedSeconds = Math.floor((performance.now() - gameState.gameStartTime) / 1000);
+            new GameOverScreen(canvas, ctx, { survivedSeconds, killCount: gameState.killCount }, () => {
+                window.location.reload();
+            });
         },
         input: inputManager
     });
@@ -143,9 +144,10 @@ const selectionScreen = new Menu(canvas, ctx, (chosenClass, soundOn) => {
     animate();
 });
 
+let selectionRafId;
 function selectionLoop() {
     selectionScreen.update();
-    requestAnimationFrame(selectionLoop);
+    selectionRafId = requestAnimationFrame(selectionLoop);
 }
 
 // Önce tüm asset'leri yükle, sonra seçim ekranını başlat

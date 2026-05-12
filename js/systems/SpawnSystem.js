@@ -77,8 +77,34 @@ export class SpawnSystem {
         x = Math.max(0, Math.min(MAP_WIDTH, x));
         y = Math.max(0, Math.min(MAP_HEIGHT, y));
 
-        const types = ['flying_eye', 'goblin', 'mushroom', 'skeleton'];
-        const type = types[Math.floor(Math.random() * types.length)];
+        const playerLevel = this._gameState.player ? this._gameState.player.level : 0;
+        const r = Math.random(); // 0 ile 1 arasında rastgele bir sayı
+        let type = 'flying_eye'; // Varsayılan 1. düşman
+        if (playerLevel < 5) {
+            // Level 0-4 arası: %80 Uçan Göz(1), %20 Goblin(2)
+            if (r < 0.80) type = 'flying_eye';
+            else type = 'goblin';
+
+        } else if (playerLevel < 10) {
+            // Level 5-9 arası: %40 Uçan Göz(1), %40 Goblin(2), %20 Mantar(3)
+            if (r < 0.40) type = 'flying_eye';
+            else if (r < 0.80) type = 'goblin';
+            else type = 'mushroom';
+
+        } else if (playerLevel < 15) {
+            // Level 10-14 arası: %20 Uçan Göz(1), %30 Goblin(2), %30 Mantar(3), %20 İskelet(4)
+            if (r < 0.20) type = 'flying_eye';
+            else if (r < 0.50) type = 'goblin';
+            else if (r < 0.80) type = 'mushroom';
+            else type = 'skeleton';
+
+        } else {
+            // Level 15 ve üstü: %10(1), %20(2), %30(3), %40(4) (Zor mod)
+            if (r < 0.10) type = 'flying_eye';
+            else if (r < 0.30) type = 'goblin';
+            else if (r < 0.60) type = 'mushroom';
+            else type = 'skeleton';
+        }
         this._enemies.push(new Enemy(x, y, type));
 
     }

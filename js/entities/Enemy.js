@@ -12,21 +12,25 @@
  *   - draw() uses ctx, camera — pass as parameters
  */
 
-import { ENEMY_SPRITE_DATA } from "../config.js";
+import { ENEMY_SPRITE_DATA, ENEMY_STATS } from "../config.js";
 import { assets } from "../assets/AssetLoader.js";
 
 export class Enemy {
     constructor(x, y, enemyType = 'flying_eye') {
         this.x = x; this.y = y;
-        this.radius = 12;
-        this.speed = 1.2;
-        this.health = 15;
-        this.maxHealth = 15;
-        this.damage = 1;
+
+        this.enemyType = enemyType;
+
+        const stats = ENEMY_STATS[enemyType];
+        this.radius = stats.radius;
+        this.speed = stats.speed;
+        this.health = stats.health;
+        this.maxHealth = stats.health;
+        this.damage = stats.damage;
+
         this.lastAttackTime = 0;
         this.attackCooldown = 800;
 
-        this.enemyType = enemyType;
         this.spriteData = ENEMY_SPRITE_DATA[enemyType];
         this.animFrame = 0;
         this.animTimer = 0;

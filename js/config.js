@@ -13,12 +13,19 @@
 
 export const MAP_WIDTH = 3000;
 export const MAP_HEIGHT = 3000;
-export const XP_COLLECT_RADIUS = 120;
+export const XP_COLLECT_RADIUS = 50;
 
 export const CLASS_STATS = {
-    ninja: { color: '#a0e0ff', attackRange: 120, attackSpread: Math.PI / 2, maxHealth: 3, speed: 4.5, damage: 15, fireRate: 250, luck: 1.2, startWeapon: 'Katana' },
-    wizard: { color: '#f0c070', attackRange: 200, attackSpread: 0.1, maxHealth: 4, speed: 4.0, damage: 10, fireRate: 150, luck: 1.5, startWeapon: 'Kement' },
-    king: { color: '#ff6b6b', attackRange: 70, attackSpread: Math.PI / 1.5, maxHealth: 5, speed: 3.5, damage: 25, fireRate: 400, luck: 1.0, startWeapon: 'Tokat' },
+    ninja: { color: '#a0e0ff', attackRange: 120, attackSpread: Math.PI / 2, maxHealth: 3, speed: 4.5, damage: 15, fireRate: 250, luck: 1.0, startWeapon: 'Katana' },
+    wizard: { color: '#f0c070', attackRange: 200, attackSpread: 0.25, maxHealth: 4, speed: 4.0, damage: 10, fireRate: 150, luck: 1.0, startWeapon: 'Asa' },
+    king: { color: '#ff6b6b', attackRange: 70, attackSpread: Math.PI / 1.5, maxHealth: 5, speed: 3.5, damage: 25, fireRate: 400, luck: 1.0, startWeapon: 'Kılıç' },
+};
+
+export const ENEMY_STATS = {
+    flying_eye: { health: 20, speed: 2.0, damage: 1, radius: 12 },
+    goblin:     { health: 25, speed: 1.5, damage: 2, radius: 14 },
+    mushroom:   { health: 35, speed: 1.0, damage: 3, radius: 16 },
+    skeleton:   { health: 50, speed: 0.8, damage: 4, radius: 18 }
 };
 
 export const UPGRADE_POOL = [
