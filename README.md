@@ -230,6 +230,4 @@ Kullanılan araçlar: **Claude (Opus 4.6)**, **Google Gemini**, **ChatGPT**, **A
 
 ---
 
-## 📜 Lisans
 
-Bu proje, Kocaeli Üniversitesi Bilgisayar Mühendisliği Bölümü Web Programlama dersi kapsamında geliştirilmiştir.
