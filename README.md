@@ -172,14 +172,11 @@ run-and-dont-die/
 
 | Asset | Kaynak |
 |---|---|
-| Ninja Karakter Sprite'ları | [CraftPix — Free Ninja Sprite Sheets](https://craftpix.net/) |
-| Wizard Karakter Sprite'ları | [CraftPix — Free Wizard Sprite Sheets](https://craftpix.net/) |
-| King Karakter Sprite'ları | [CraftPix — Free King Sprite Sheets](https://craftpix.net/) |
-| Flying Eye Düşman Sprite'ları | [CraftPix — Free Monster Sprite Sheets](https://craftpix.net/) |
-| Goblin Düşman Sprite'ları | [CraftPix — Free Monster Sprite Sheets](https://craftpix.net/) |
-| Mushroom Düşman Sprite'ları | [CraftPix — Free Monster Sprite Sheets](https://craftpix.net/) |
-| Skeleton Düşman Sprite'ları | [CraftPix — Free Monster Sprite Sheets](https://craftpix.net/) |
-| Silah İkonları (Pompalı, Taramalı, Sniper) | Projeye özel tasarım |
+| Ninja Karakter Sprite'ları | [Luiz Melo — Martial Hero](https://luizmelo.itch.io/martial-hero) |
+| Wizard Karakter Sprite'ları | [Luiz Melo — Wizard Pack](https://luizmelo.itch.io/wizard-pack) |
+| King Karakter Sprite'ları | [Luiz Melo — Medieval King Pack](https://luizmelo.itch.io/medieval-king-pack) |
+| Düşman Sprite'ları (Flying Eye, Goblin, Mushroom, Skeleton) | [Luiz Melo — Monsters Creatures Fantasy](https://luizmelo.itch.io/monsters-creatures-fantasy) |
+| Silah İkonları (Pompalı, Taramalı, Sniper) | [Arcade Island — Guns Asset Pack V1](https://arcadeisland.itch.io/guns-asset-pack-v1) |
 | Zemin Texture (taş zemin) | Google Gemini ile üretildi (prompt: *"top-down dark stone floor texture, pixel art style, seamless, dungeon"*) |
 
 ### 🔊 Sesler
@@ -191,10 +188,10 @@ run-and-dont-die/
 | Wizard Oyun Müziği | Google Gemini ile oluşturulan promptlarla seçildi |
 | King Oyun Müziği | Google Gemini ile oluşturulan promptlarla seçildi |
 | Ölüm Müziği | Google Gemini ile oluşturulan promptlarla seçildi |
-| Saldırı SFX (Ninja, Wizard, King) | [Pixabay Sound Effects](https://pixabay.com/sound-effects/) |
-| Ölüm SFX | [Pixabay Sound Effects](https://pixabay.com/sound-effects/) |
-| Seviye Atlama SFX | [Pixabay Sound Effects](https://pixabay.com/sound-effects/) |
-| Silah SFX | [Pixabay Sound Effects](https://pixabay.com/sound-effects/) |
+| Saldırı SFX (Ninja, Wizard, King) | [Freesound.org](https://freesound.org/) |
+| Ölüm SFX | [Freesound.org](https://freesound.org/) |
+| Seviye Atlama SFX | [Freesound.org](https://freesound.org/) |
+| Silah SFX | [Freesound.org](https://freesound.org/) |
 
 ---
 
