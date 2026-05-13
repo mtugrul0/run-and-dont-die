@@ -280,22 +280,39 @@ No game logic was touched — the original game.js remains fully functional.
 
 </details>
 
----
-
 <details>
-<summary>📅 GG-AA-YYYY — Araç Adı • Kısa Başlık</summary>
+<summary>📅 11-05-2026 — Gemini • Git Kullanımı</summary>
 
 <details>
 <summary>🧠 Prompt</summary>
 
-Buraya verilen prompt yazılacak.
+js/main.js
+
+</details>
+Git Kullanımıyla alakalı sorular
+<details>
+<summary>🤖 Cevap</summary>
+
+[Gemini Sohbet Bağlantısı](https://gemini.google.com/share/b28606224957)
+
+</details>
+
+</details>
+
+---
+
+<details>
+<summary>📅 GG.AA.YY — YZ Aracı • Kısa Başlık</summary>
+
+<details>
+<summary>🧠 Prompt</summary>
 
 </details>
 
 <details>
 <summary>🤖 Cevap</summary>
 
-Buraya alınan cevap yazılacak.
+</details>
 
 </details>
 

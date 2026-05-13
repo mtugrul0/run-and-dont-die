@@ -129,8 +129,7 @@ export class Player {
         if (this._input.keys.a) this.x = Math.max(this.radius, this.x - effectiveSpeed);
         if (this._input.keys.d) this.x = Math.min(MAP_WIDTH - this.radius, this.x + effectiveSpeed);
 
-        this._camera.x = this.x - this._canvas.width / 2;
-        this._camera.y = this.y - this._canvas.height / 2;
+        this._camera.follow(this, this._canvas.width, this._canvas.height);
 
         if (this._input.mouse.isDown && Date.now() - this.lastAttackTime > this.stats.fireRate) {
             this.attack();
@@ -175,7 +174,7 @@ export class Player {
                         enemy.health -= effectiveDamage;
                         const hitSfx = assets.audio.hit;
                         if (hitSfx) audioManager.playSFX(hitSfx);
-                        
+
                         if (enemy.health <= 0) this._onEnemyKilled(enemy, index);
                     }
                 }
@@ -204,7 +203,7 @@ export class Player {
         if (Date.now() - this.lastHitTime < this.hitCooldown) return;
         this.lastHitTime = Date.now();
         this.health -= amount;
-        
+
         if (this.health <= 0) {
             this.health = 0;
             const deathSound = assets.audio.death;

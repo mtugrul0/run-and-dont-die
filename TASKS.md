@@ -46,15 +46,15 @@ Bu dosya, iki öğrenci arasındaki görev dağılımını GitHub Issue tarzı c
 **Assignee:** Soleil  
 **Depends on:** A2
 
-- [ ] `js/systems/CollisionSystem.js` — handleEnemyDeath() helper'ını taşı (game.js:636-639)
-- [ ] Projectile ↔ Enemy çarpışma kontrolünü taşı (game.js:722-740)
-- [ ] Player ↔ ExperienceOrb toplama kontrolünü taşı (game.js:742-758)
-- [ ] Drone ↔ ExperienceOrb toplama kontrolünü taşı (game.js:747-752)
-- [ ] Player ↔ WeaponDrop toplama kontrolünü taşı (game.js:702-716)
-- [ ] Player ↔ Zone (mad buff) kontrolünü taşı (game.js:688-700)
-- [ ] Enemy ↔ Zone (safe repel) kontrolünü taşı (game.js:761-774)
-- [ ] `update(gameState)` fonksiyonu olarak dışa aktar
-- [ ] Tüm çarpışma senaryolarını oyun içinde test et
+- [x] `js/systems/CollisionSystem.js` — handleEnemyDeath() helper'ını taşı (game.js:636-639)
+- [x] Projectile ↔ Enemy çarpışma kontrolünü taşı (game.js:722-740)
+- [x] Player ↔ ExperienceOrb toplama kontrolünü taşı (game.js:742-758)
+- [x] Drone ↔ ExperienceOrb toplama kontrolünü taşı (game.js:747-752)
+- [x] Player ↔ WeaponDrop toplama kontrolünü taşı (game.js:702-716)
+- [x] Player ↔ Zone (mad buff) kontrolünü taşı (game.js:688-700)
+- [x] Enemy ↔ Zone (safe repel) kontrolünü taşı (game.js:761-774)
+- [x] `update(gameState)` fonksiyonu olarak dışa aktar
+- [x] Tüm çarpışma senaryolarını oyun içinde test et
 
 ---
 
@@ -62,11 +62,11 @@ Bu dosya, iki öğrenci arasındaki görev dağılımını GitHub Issue tarzı c
 **Assignee:** Soleil  
 **Depends on:** A2
 
-- [ ] `js/systems/SpawnSystem.js` — Düşman spawn logic'ini taşı (game.js:641-656, setInterval 1000ms)
-- [ ] Item spawn logic'ini taşı (game.js:658-675, rAF loop, luck-scaled cooldown)
-- [ ] isPaused kontrolünü GameState'den al
-- [ ] Spawn edilen nesneleri doğru dizilere push ettiğini doğrula
-- [ ] start() / stop() metodları ekle
+- [x] `js/systems/SpawnSystem.js` — Düşman spawn logic'ini taşı (game.js:641-656, setInterval 1000ms)
+- [x] Item spawn logic'ini taşı (game.js:658-675, rAF loop, luck-scaled cooldown)
+- [x] isPaused kontrolünü GameState'den al
+- [x] Spawn edilen nesneleri doğru dizilere push ettiğini doğrula
+- [x] start() / stop() metodları ekle
 
 ---
 
@@ -74,9 +74,9 @@ Bu dosya, iki öğrenci arasındaki görev dağılımını GitHub Issue tarzı c
 **Assignee:** Soleil  
 **Depends on:** A1
 
-- [ ] `js/renderer/Camera.js` — camera objesini (game.js:13) class olarak oluştur
-- [ ] follow(target, canvasWidth, canvasHeight) metodu ekle (game.js:121-122 logic)
-- [ ] Player.update()'ten camera mutation'ı kaldır, Camera.follow() kullan
+- [x] `js/renderer/Camera.js` — camera objesini (game.js:13) class olarak oluştur
+- [x] follow(target, canvasWidth, canvasHeight) metodu ekle (game.js:121-122 logic)
+- [x] Player.update()'ten camera mutation'ı kaldır, Camera.follow() kullan
 
 ---
 
@@ -84,21 +84,21 @@ Bu dosya, iki öğrenci arasındaki görev dağılımını GitHub Issue tarzı c
 **Assignee:** Soleil  
 **Depends on:** A1, A2, A3, A4, A5, B1, B2
 
-- [ ] `js/main.js` — Canvas/ctx oluştur + resize listener ekle (game.js:1-8)
-- [ ] GameState objesi oluştur: player, drone, enemies[], orbs[], zones[], weaponDrops[], projectiles[], isPaused
-- [ ] Tüm modülleri import et
-- [ ] Player, Drone nesnelerini oluştur
-- [ ] InputManager'ı başlat ve callback'leri bağla
-- [ ] SpawnSystem'ı başlat
-- [ ] animate() ana döngüsünü yaz (game.js:677-780 sırasıyla):
+- [x] `js/main.js` — Canvas/ctx oluştur + resize listener ekle (game.js:1-8)
+- [x] GameState objesi oluştur: player, drone, enemies[], orbs[], zones[], weaponDrops[], projectiles[], isPaused
+- [x] Tüm modülleri import et
+- [x] Player, Drone nesnelerini oluştur
+- [x] InputManager'ı başlat ve callback'leri bağla
+- [x] SpawnSystem'ı başlat
+- [x] animate() ana döngüsünü yaz (game.js:677-780 sırasıyla):
   1. drawMap()
   2. CollisionSystem.update() — zone + weapon + projectile + orb + enemy interactions
   3. player.update()
   4. drone.update()
   5. drawUI()
-- [ ] isPaused durumunda drawCards() çağır
-- [ ] Oyunu başlat: animate() ve spawnItems() çağır
-- [ ] Oyunun monolith ile aynı davrandığını uçtan uca test et
+- [x] isPaused durumunda drawCards() çağır
+- [x] Oyunu başlat: animate() ve spawnItems() çağır
+- [x] Oyunun monolith ile aynı davrandığını uçtan uca test et
 
 ---
 
@@ -106,11 +106,11 @@ Bu dosya, iki öğrenci arasındaki görev dağılımını GitHub Issue tarzı c
 **Assignee:** Soleil  
 **Depends on:** A6
 
-- [ ] Oyun başlamadan önce bir seçim ekranı göster
-- [ ] 3 buton: Ninja / Yeniçeri / Kovboy — her birinin statlarını göster
-- [ ] Seçime göre `SELECTED_CLASS` belirle ve Player'ı o class ile oluştur
-- [ ] Seçim ekranını Canvas üzerine çiz (DOM elementi değil)
-- [ ] Seçim yapılmadan oyun döngüsü başlamamalı
+- [x] Oyun başlamadan önce bir seçim ekranı göster
+- [x] 3 buton: Ninja / Yeniçeri / Kovboy — her birinin statlarını göster
+- [x] Seçime göre `SELECTED_CLASS` belirle ve Player'ı o class ile oluştur
+- [x] Seçim ekranını Canvas üzerine çiz (DOM elementi değil)
+- [x] Seçim yapılmadan oyun döngüsü başlamamalı
 
 ---
 
