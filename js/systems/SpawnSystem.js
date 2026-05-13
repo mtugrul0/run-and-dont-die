@@ -23,17 +23,15 @@ export class SpawnSystem {
      * @param {object}   deps.gameState   
      * @param {object}   deps.camera        
      * @param {object}   deps.canvas        
-     * @param {object}   deps.player        
      * @param {object[]} deps.enemies       
      * @param {object[]} deps.zones        
      * @param {object[]} deps.weaponDrops   
      */
 
-    constructor({ gameState, camera, canvas, player, enemies, zones, weaponDrops }) {
+    constructor({ gameState, camera, canvas, enemies, zones, weaponDrops }) {
         this._gameState = gameState;
         this._camera = camera;
         this._canvas = canvas;
-        this._player = player;
         this._enemies = enemies;
         this._zones = zones;
         this._weaponDrops = weaponDrops;
@@ -79,13 +77,45 @@ export class SpawnSystem {
         x = Math.max(0, Math.min(MAP_WIDTH, x));
         y = Math.max(0, Math.min(MAP_HEIGHT, y));
 
-        this._enemies.push(new Enemy(x, y));
+        const playerLevel = this._gameState.player ? this._gameState.player.level : 0;
+        const r = Math.random(); // 0 ile 1 arasında rastgele bir sayı
+        let type = 'flying_eye'; // Varsayılan 1. düşman
+        if (playerLevel < 5) {
+            // Level 0-4 arası: %80 Uçan Göz(1), %20 Goblin(2)
+            if (r < 0.80) type = 'flying_eye';
+            else type = 'goblin';
+
+        } else if (playerLevel < 10) {
+            // Level 5-9 arası: %40 Uçan Göz(1), %40 Goblin(2), %20 Mantar(3)
+            if (r < 0.40) type = 'flying_eye';
+            else if (r < 0.80) type = 'goblin';
+            else type = 'mushroom';
+
+        } else if (playerLevel < 15) {
+            // Level 10-14 arası: %20 Uçan Göz(1), %30 Goblin(2), %30 Mantar(3), %20 İskelet(4)
+            if (r < 0.20) type = 'flying_eye';
+            else if (r < 0.50) type = 'goblin';
+            else if (r < 0.80) type = 'mushroom';
+            else type = 'skeleton';
+
+        } else {
+            // Level 15 ve üstü: %10(1), %20(2), %30(3), %40(4) (Zor mod)
+            if (r < 0.10) type = 'flying_eye';
+            else if (r < 0.30) type = 'goblin';
+            else if (r < 0.60) type = 'mushroom';
+            else type = 'skeleton';
+        }
+        this._enemies.push(new Enemy(x, y, type));
+
     }
 
     _spawnItemFrame() {
-        const { _gameState: gs, _player: p } = this;
+        const gs = this._gameState;
+        const p = gs.player;
 
-        if (!gs.isPaused && Date.now() - this._lastSpawnTime > (8000 / p.stats.luck)) {
+        if (!p || gs.isPaused) { this._scheduleItemSpawn(); return; }
+
+        if (Date.now() - this._lastSpawnTime > (8000 / p.stats.luck)) {
             const x = Math.max(50, Math.min(MAP_WIDTH - 50, p.x + (Math.random() * 800 - 400)));
             const y = Math.max(50, Math.min(MAP_HEIGHT - 50, p.y + (Math.random() * 800 - 400)));
             const r = Math.random();

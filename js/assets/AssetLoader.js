@@ -17,54 +17,60 @@
 const manifest = {
     images: {
 
-    ninja_idle:    'assets/images/player/ninja/Idle.png',
-    ninja_run:     'assets/images/player/ninja/Run.png',
-    ninja_attack1: 'assets/images/player/ninja/Attack1.png',
-    ninja_attack2: 'assets/images/player/ninja/Attack2.png',
-    ninja_death:   'assets/images/player/ninja/Death.png',
-    ninja_hit:     'assets/images/player/ninja/Take_hit.png',
+        ninja_idle: 'assets/images/player/ninja/Idle.png',
+        ninja_run: 'assets/images/player/ninja/Run.png',
+        ninja_attack1: 'assets/images/player/ninja/Attack1.png',
+        ninja_death: 'assets/images/player/ninja/Death.png',
+        ninja_hit: 'assets/images/player/ninja/Take_Hit.png',
 
-    wizard_idle:    'assets/images/player/wizard/Idle.png',
-    wizard_run:     'assets/images/player/wizard/Run.png',
-    wizard_attack1: 'assets/images/player/wizard/Attack1.png',
-    wizard_attack2: 'assets/images/player/wizard/Attack2.png',
-    wizard_death:   'assets/images/player/wizard/Death.png',
-    wizard_hit:     'assets/images/player/wizard/Hit.png',
+        wizard_idle: 'assets/images/player/wizard/Idle.png',
+        wizard_run: 'assets/images/player/wizard/Run.png',
+        wizard_attack1: 'assets/images/player/wizard/Attack1.png',
+        wizard_death: 'assets/images/player/wizard/Death.png',
+        wizard_hit: 'assets/images/player/wizard/Hit.png',
 
-    king_idle:    'assets/images/player/king/Idle.png',
-    king_run:     'assets/images/player/king/Run.png',
-    king_attack1: 'assets/images/player/king/Attack_1.png',
-    king_attack2: 'assets/images/player/king/Attack_2.png',
-    king_death:   'assets/images/player/king/Death.png',
-    king_hit:     'assets/images/player/king/Hit.png',
-},
+        king_idle: 'assets/images/player/king/Idle.png',
+        king_run: 'assets/images/player/king/Run.png',
+        king_attack1: 'assets/images/player/king/Attack_1.png',
+        king_death: 'assets/images/player/king/Death.png',
+        king_hit: 'assets/images/player/king/Hit.png',
+
+        enemy_flying_eye: 'assets/images/enemies/flying_eye/Attack3.png',
+        enemy_flying_eye_projectile: 'assets/images/enemies/flying_eye/projectile_sprite.png',
+        enemy_goblin: 'assets/images/enemies/goblin/Attack3.png',
+        enemy_goblin_bomb: 'assets/images/enemies/goblin/Bomb_sprite.png',
+        enemy_mushroom: 'assets/images/enemies/mushroom/Attack3.png',
+        enemy_mushroom_projectile: 'assets/images/enemies/mushroom/Projectile_sprite.png',
+        enemy_skeleton: 'assets/images/enemies/skeleton/Attack3.png',
+        enemy_skeleton_sword: 'assets/images/enemies/skeleton/Sword_sprite.png',
+
+        weapon_pompali: 'assets/images/items/pompali.png',
+        weapon_taramali: 'assets/images/items/taramali.png',
+        weapon_sniper: 'assets/images/items/sniper.png',
+
+        map_floor: 'assets/images/ui/zemin.png',
+    },
 
     audio: {
-        bgm_ninja: 'assets/audio/bgm/ninja.mp3',
-        bgm_kovboy: 'assets/audio/bgm/kovboy.mp3',
-        bgm_yeniceri: 'assets/audio/bgm/yeniceri.mp3',
-        
-        attack_ninja: 'assets/audio/sfx/attack_ninja.wav',
-        attack_kovboy: 'assets/audio/sfx/attack_kovboy.wav',
-        attack_yeniceri: 'assets/audio/sfx/attack_yeniceri.wav',
-        
-        death_ninja: 'assets/audio/sfx/death_ninja.wav',
-        death_kovboy: 'assets/audio/sfx/death_kovboy.wav',
-        death_yeniceri: 'assets/audio/sfx/death_yeniceri.wav',
-        
-        levelup_ninja: 'assets/audio/sfx/levelup_ninja.wav',
-        levelup_kovboy: 'assets/audio/sfx/levelup_kovboy.wav',
-        levelup_yeniceri: 'assets/audio/sfx/levelup_yeniceri.wav',
+        bgm_ninja: 'assets/audio/bgm/ninja.ogg',
+        bgm_wizard: 'assets/audio/bgm/wizard.ogg',
+        bgm_king: 'assets/audio/bgm/king.ogg',
+        bgm_menu: 'assets/audio/bgm/menu.ogg',
+        bgm_rip: 'assets/audio/bgm/rip.ogg',
 
-        hit: 'assets/audio/sfx/hit.wav',
-        pickup: 'assets/audio/sfx/pickup.wav',
-        gameover: 'assets/audio/sfx/gameover.wav',
-    }
+        attack_ninja: 'assets/audio/sfx/attack_ninja.wav',
+        attack_wizard: 'assets/audio/sfx/attack_wizard.wav',
+        attack_king: 'assets/audio/sfx/attack_king.wav',
+
+        death: 'assets/audio/sfx/death.wav',
+        levelup: 'assets/audio/sfx/lvlup.wav',
+        gun: 'assets/audio/sfx/gun.wav',
+    },
 };
 
-export const assets = { 
-    images: {}, 
-    audio: {} 
+export const assets = {
+    images: {},
+    audio: {}
 };
 
 function loadImage(path) {

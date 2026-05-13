@@ -20,7 +20,7 @@
  */
 
 import { MAP_WIDTH, MAP_HEIGHT } from './config.js';
-import { CharacterSelectScreen } from './screens/CharacterSelectScreen.js';
+import { Menu } from './screens/Menu.js';
 import { inputManager } from './input.js';
 import { Camera } from './renderer/Camera.js';
 import { drawMap } from './renderer/MapRenderer.js';
@@ -31,6 +31,9 @@ import { Enemy } from './entities/Enemy.js';
 import { CollisionSystem } from './systems/CollisionSystem.js';
 import { SpawnSystem } from './systems/SpawnSystem.js';
 import { UpgradeSystem } from './systems/UpgradeSystem.js';
+import { loadAllAssets, assets } from './assets/AssetLoader.js';
+import { audioManager } from './assets/AudioManager.js';
+import { GameOverScreen } from './screens/GameOverScreen.js';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -42,10 +45,14 @@ window.addEventListener('resize', () => {
     canvas.height = window.innerHeight;
 });
 
+audioManager.init();
+
 const camera = new Camera();
 
 const gameState = {
     isPaused: false,
+    killCount: 0,
+    gameStartTime: 0,
     enemies: [],
     projectiles: [],
     orbs: [],
@@ -65,7 +72,6 @@ const spawnSystem = new SpawnSystem({
     gameState,
     camera,
     canvas,
-    player: gameState.player,
     enemies: gameState.enemies,
     zones: gameState.zones,
     weaponDrops: gameState.weaponDrops
@@ -81,16 +87,22 @@ function animate() {
     }
     requestAnimationFrame(animate);
 
-    drawMap(ctx, camera, canvas, MAP_WIDTH, MAP_HEIGHT);
+    drawMap(ctx, camera, canvas);
 
     CollisionSystem.update(gameState);
 
     gameState.player.update();
     gameState.drone.update(ctx, camera);
 
-    drawUI(ctx, canvas, gameState.player, gameState.drone, gameState.enemies);
+    drawUI(ctx, canvas, gameState.player, gameState.drone, gameState.enemies, gameState.zones, gameState.weaponDrops);
 }
-const selectionScreen = new CharacterSelectScreen(canvas, ctx, (chosenClass) => {
+const selectionScreen = new Menu(canvas, ctx, (chosenClass, soundOn) => {
+    cancelAnimationFrame(selectionRafId);
+    gameState.gameStartTime = performance.now();
+
+    audioManager.isMuted = !soundOn;
+    audioManager.playBGM(assets.audio['bgm_' + chosenClass]);
+
     gameState.player = new Player(MAP_WIDTH / 2, MAP_HEIGHT / 2, chosenClass, {
         ctx,
         camera,
@@ -98,21 +110,17 @@ const selectionScreen = new CharacterSelectScreen(canvas, ctx, (chosenClass) => 
         enemies: gameState.enemies,
         projectiles: gameState.projectiles,
         onLevelUp: () => upgradeSystem.triggerUpgradeCards(),
-        onEnemyKilled: (enemy, index) =>
-            CollisionSystem.handleEnemyDeath(enemy, index, gameState.enemies, gameState.orbs),
+        onEnemyKilled: (enemy, index) => {
+            gameState.killCount++;
+            CollisionSystem.handleEnemyDeath(enemy, index, gameState.enemies, gameState.orbs);
+        },
         onDeath: () => {
             gameState.isPaused = true;
-            setTimeout(() => {
-                ctx.fillStyle = 'rgba(0,0,0,0.8)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#ff4444';
-                ctx.font = 'bold 60px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('ÖLDÜN!', canvas.width / 2, canvas.height / 2);
-                ctx.fillStyle = 'white';
-                ctx.font = '24px Arial';
-                ctx.fillText('Sayfayı yenileyerek tekrar oyna', canvas.width / 2, canvas.height / 2 + 50);
-            }, 100);
+            audioManager.playBGM(assets.audio.bgm_rip);
+            const survivedSeconds = Math.floor((performance.now() - gameState.gameStartTime) / 1000);
+            new GameOverScreen(canvas, ctx, { survivedSeconds, killCount: gameState.killCount }, () => {
+                window.location.reload();
+            });
         },
         input: inputManager
     });
@@ -143,8 +151,19 @@ const selectionScreen = new CharacterSelectScreen(canvas, ctx, (chosenClass) => 
     animate();
 });
 
+let selectionRafId;
 function selectionLoop() {
     selectionScreen.update();
-    requestAnimationFrame(selectionLoop);
+    selectionRafId = requestAnimationFrame(selectionLoop);
 }
-selectionLoop();
+
+// Önce tüm asset'leri yükle, sonra seçim ekranını başlat
+loadAllAssets((progress) => {
+    console.log(`Asset yükleniyor: ${Math.floor(progress * 100)}%`);
+}).then(() => {
+    console.log('Tüm asset\'ler yüklendi!');
+    // Tarayıcı autoplay politikası nedeniyle ilk başta ses çalmayabilir, 
+    // kullanıcı tıkladığında başlaması gerekebilir.
+    audioManager.playBGM(assets.audio.bgm_menu);
+    selectionLoop();
+});

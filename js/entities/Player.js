@@ -12,7 +12,9 @@
  *   - gainXp() calls triggerUpgradeCards() — inject callback or use event emitter
  *   - takeDamage() sets isPaused directly — decouple via callback
  */
-import { MAP_WIDTH, MAP_HEIGHT, XP_COLLECT_RADIUS, CLASS_STATS } from "../config.js"
+import { MAP_WIDTH, MAP_HEIGHT, XP_COLLECT_RADIUS, CLASS_STATS, SPRITE_DATA } from "../config.js"
+import { assets } from "../assets/AssetLoader.js"
+import { audioManager } from "../assets/AudioManager.js"
 import { Projectile } from "./Projectile.js"
 
 export class Player {
@@ -22,8 +24,16 @@ export class Player {
         this.y = y;
         // yarıçapımız
         this.radius = 15;
+        this.charClass = charClass;
 
         this.stats = { ...CLASS_STATS[charClass] }; // seçilen karakterin statlarını sığ koyaladı
+        // sprite animasyon
+        this.spriteData = SPRITE_DATA[charClass];
+        this.animFrame = 0;
+        this.animTimer = 0;
+        this.animSpeed = 100; // ms per frame
+        this.facingLeft = false;
+        this.currentAnim = 'idle';
         this.color = this.stats.color;
 
         this.maxHealth = this.stats.maxHealth;
@@ -32,7 +42,7 @@ export class Player {
 
         this.level = 0;
         this.xp = 0;
-        this.xpToNextLevel = 50;
+        this.xpToNextLevel = 50; // sonrasında iki level arası xp değişkenlik gösterebilir
 
         this.lastAttackTime = 0;
         this.isAttacking = false;
@@ -67,14 +77,38 @@ export class Player {
         this._ctx.strokeStyle = 'rgba(255, 255, 100, 0.12)';
         this._ctx.lineWidth = 1;
         this._ctx.stroke();
-        // biz
-        this._ctx.beginPath();
-        this._ctx.arc(dx, dy, this.radius, 0, Math.PI * 2);
-        this._ctx.fillStyle = this.madBuff ? '#ff0' : this.color; // Güç buff'ı varsa fosforlu sarı, yoksa kendi sınıfının rengi
-        this._ctx.fill();
-        this._ctx.strokeStyle = 'white';
-        this._ctx.lineWidth = 2;
-        this._ctx.stroke();
+        // hangi animasyon?
+        const moving = this._input.keys.w || this._input.keys.a || this._input.keys.s || this._input.keys.d;
+        this.currentAnim = this.isAttacking ? 'attack' : (moving ? 'run' : 'idle');
+        // yön: mouse pozisyonuna göre sola/sağa bak
+        const worldMouseX = this._input.mouse.x + this._camera.x;
+        this.facingLeft = worldMouseX < this.x;
+        const animData = this.spriteData[this.currentAnim];
+        const img = assets.images[animData.key];
+        if (img) {
+            const fw = this.spriteData.frameW;
+            const fh = this.spriteData.frameH;
+            const drawSize = this.radius * this.spriteData.scale; // ekranda çizilecek boyut
+            const sx = this.animFrame * fw;
+            this._ctx.save();
+            if (this.facingLeft) {
+                this._ctx.translate(dx, dy);
+                this._ctx.scale(-1, 1);
+                this._ctx.drawImage(img, sx, 0, fw, fh, -drawSize / 2, -drawSize / 2, drawSize, drawSize);
+            } else {
+                this._ctx.drawImage(img, sx, 0, fw, fh, dx - drawSize / 2, dy - drawSize / 2, drawSize, drawSize);
+            }
+            this._ctx.restore();
+        } else {
+            // fallback: eski renkli daire
+            this._ctx.beginPath();
+            this._ctx.arc(dx, dy, this.radius, 0, Math.PI * 2);
+            this._ctx.fillStyle = this.madBuff ? '#ff0' : this.color;
+            this._ctx.fill();
+            this._ctx.strokeStyle = 'white';
+            this._ctx.lineWidth = 2;
+            this._ctx.stroke();
+        }
         // saldırı yelpazesi
         if (this.isAttacking) {
             this._ctx.beginPath();
@@ -102,6 +136,14 @@ export class Player {
         }
         if (Date.now() - this.lastAttackTime > 150) this.isAttacking = false;
 
+        // animasyon frame güncelle
+        this.animTimer += 16; // ~60fps varsayımı
+        const animData = this.spriteData[this.currentAnim];
+        if (this.animTimer >= this.animSpeed) {
+            this.animTimer = 0;
+            this.animFrame = (this.animFrame + 1) % animData.frames;
+        }
+
         this.draw();
     };
 
@@ -113,6 +155,10 @@ export class Player {
         const worldMouseX = this._input.mouse.x + this._camera.x;
         const worldMouseY = this._input.mouse.y + this._camera.y;
         this.attackAngle = Math.atan2(worldMouseY - this.y, worldMouseX - this.x);
+
+        const soundKey = weapon.isMelee ? 'attack_' + this.charClass : 'gun';
+        const attackSound = assets.audio[soundKey];
+        if (attackSound) audioManager.playSFX(attackSound);
 
         const effectiveDamage = this.madBuff ? this.stats.damage * 1.5 : this.stats.damage;
 
@@ -126,6 +172,9 @@ export class Player {
                     while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
                     if (Math.abs(angleDiff) <= this.stats.attackSpread) {
                         enemy.health -= effectiveDamage;
+                        const hitSfx = assets.audio.hit;
+                        if (hitSfx) audioManager.playSFX(hitSfx);
+
                         if (enemy.health <= 0) this._onEnemyKilled(enemy, index);
                     }
                 }
@@ -154,9 +203,15 @@ export class Player {
         if (Date.now() - this.lastHitTime < this.hitCooldown) return;
         this.lastHitTime = Date.now();
         this.health -= amount;
+
         if (this.health <= 0) {
             this.health = 0;
+            const deathSound = assets.audio.death;
+            if (deathSound) audioManager.playSFX(deathSound);
             this._onDeath();
+        } else {
+            const hitSound = assets.audio.hit;
+            if (hitSound) audioManager.playSFX(hitSound);
         }
     };
 
@@ -166,7 +221,11 @@ export class Player {
             this.level++;
             this.xp -= this.xpToNextLevel;
             this.xpToNextLevel = Math.floor(this.xpToNextLevel * 1.5);
-            if (this.level % 3 === 0 && this.maxSlots < 3) this.maxSlots++;
+            if (this.level % 3 === 0 && this.maxSlots < 4) this.maxSlots++;
+
+            const levelupSound = assets.audio.levelup;
+            if (levelupSound) audioManager.playSFX(levelupSound);
+
             this._onLevelUp();
         }
     };

@@ -21,6 +21,8 @@
 
 import { ExperienceOrb } from '../entities/ExperienceOrb.js';
 import { XP_COLLECT_RADIUS } from '../config.js';
+import { assets } from '../assets/AssetLoader.js';
+import { audioManager } from '../assets/AudioManager.js';
 
 /**
  * @param {object} enemy
@@ -58,6 +60,8 @@ function update(gameState) {
             } else if (player.inventory.length < player.maxSlots) {
                 player.inventory.push({ type: weaponDrops[i].type, isMelee: false, ammo: 30 });
             }
+            const pickupSound = assets.audio.pickup;
+            if (pickupSound) audioManager.playSFX(pickupSound);
             weaponDrops.splice(i, 1);
         }
     }
@@ -76,13 +80,16 @@ function update(gameState) {
             if (Math.hypot(projectiles[i].x - enemies[j].x, projectiles[i].y - enemies[j].y) <
                 projectiles[i].radius + enemies[j].radius) {
                 enemies[j].health -= projectiles[i].damage;
+
+                const hitSfx = assets.audio.hit;
+                if (hitSfx) audioManager.playSFX(hitSfx);
+
                 if (enemies[j].health <= 0) handleEnemyDeath(enemies[j], j, enemies, orbs);
                 projectiles.splice(i, 1);
                 hit = true;
                 break;
             }
         }
-        if (hit) continue;
     }
 
     const xpRadius = XP_COLLECT_RADIUS + (player._xpBonus || 0);

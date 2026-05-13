@@ -316,4 +316,91 @@ Git Kullanımıyla alakalı sorular
 
 </details>
 
----
+<details>
+<summary>📅 11-05-2026 — Google Gemini • Zemin Texture Üretimi</summary>
+
+<details>
+<summary>🧠 Prompt</summary>
+
+top-down dark stone floor texture, pixel art style, seamless, dungeon, 1024x1024
+
+</details>
+
+<details>
+<summary>🤖 Cevap</summary>
+
+Karanlık taş zemin texture'ı üretildi. assets/images/ui/zemin.png olarak kaydedildi.
+
+</details>
+
+</details>
+
+</details>
+
+<details>
+<summary>📅 11-05-2026 — Gemini • Ses</summary>
+
+<details>
+<summary>🧠 Prompt</summary>
+
+[Oyun Müziği İçin Prompt Önerileri](https://gemini.google.com/share/d68fd02bff37)
+
+</details>
+
+<details>
+<summary>🤖 Cevap</summary>
+
+[Oyun Müziği İçin Prompt Önerileri](https://gemini.google.com/share/d68fd02bff37)
+
+</details>
+
+<details>
+<summary>📅 11-05-2026 — Gemini • Ses</summary>
+
+<details>
+<summary>🧠 Prompt</summary>
+
+[Müzikler.](https://gemini.google.com/share/0faded2c6606)
+
+</details>
+
+<details>
+<summary>🤖 Cevap</summary>
+
+[Müzikler.](https://gemini.google.com/share/0faded2c6606)
+
+</details>
+
+<details>
+<summary>📅 11-05-2026 — Gemini • SesSFX</summary>
+
+<details>
+<summary>🧠 Prompt</summary>
+
+[SFX.]https://gemini.google.com/share/580d412c329d
+
+</details>
+
+<details>
+<summary>🤖 Cevap</summary>
+
+[SFX.]https://gemini.google.com/share/580d412c329d
+
+</details>
+
+<details>
+<summary>📅 11-05-2026 — ChatGPT • Git</summary>
+
+<details>
+<summary>🧠 Prompt</summary>
+
+[Github Kullanım.](https://chatgpt.com/share/6a023c47-8cc0-8332-84bf-5717ccc7fbd0)
+
+</details>
+
+<details>
+<summary>🤖 Cevap</summary>
+
+[Github Kullanım.](https://chatgpt.com/share/6a023c47-8cc0-8332-84bf-5717ccc7fbd0)
+
+</details>
