@@ -26,6 +26,22 @@ Bu proje, [**Wizard of Chaos**](https://cakestorm.itch.io/wizard-of-chaos) adlı
 
 **Run and Don't Die**, oyuncunun üç farklı sınıftan birini seçerek giderek zorlaşan düşman dalgalarına karşı hayatta kalmaya çalıştığı bir 2D top-down survival oyunudur. Oyun tamamen vanilla JavaScript ve HTML5 Canvas kullanılarak, herhangi bir harici kütüphane olmadan geliştirilmiştir.
 
+### 📸 Ekran Görüntüleri
+
+<div align="center">
+  <img src="assets/images/screenshots/menü.png" width="80%" alt="Menü Ekranı">
+  <p><i>Karakter seçim ekranı, animasyonlu kartlar ve ana menü arayüzü</i></p>
+  <br>
+  <img src="assets/images/screenshots/oyun-içi-görüntü.png" width="80%" alt="Oyun İçi Görüntü">
+  <p><i>Giderek zorlaşan düşman dalgaları, minimap ve 3 farklı modda çalışan drone sistemi</i></p>
+  <br>
+  <img src="assets/images/screenshots/farklı-silah-kullanımı.png" width="80%" alt="Farklı Silah Kullanımı">
+  <p><i>Haritadan toplanabilen uzak menzilli silahların (Pompalı, Taramalı, Sniper) stratejik kullanımı</i></p>
+  <br>
+  <img src="assets/images/screenshots/öldün-elranı.png" width="80%" alt="Ölüm Ekranı">
+  <p><i>Oyun sonu istatistikleri, hayatta kalma süresi ve toplam öldürme skoru</i></p>
+</div>
+
 ### ✨ Temel Özellikler
 
 - 🎭 **3 Oynanabilir Karakter Sınıfı**: Ninja, Wizard ve King — her birinin kendine özgü statları, silahları ve animasyonları
