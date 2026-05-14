@@ -118,11 +118,11 @@ Bu dosya, iki öğrenci arasındaki görev dağılımını GitHub Issue tarzı c
 **Assignee:** Soleil  
 **Depends on:** A6
 
-- [ ] Mevcut "ÖLDÜN!" mesajını geliştir
-- [ ] Skor göster: hayatta kalınan süre (saniye) + öldürülen düşman sayısı
-- [ ] "Tekrar Oyna" butonu ekle (sayfa yenilemeden yeniden başlat)
-- [ ] Skoru hesaplamak için gameStartTime ve killCount sayaçları ekle
-- [ ] Game Over ekranını Canvas üzerine çiz
+- [x] Mevcut "ÖLDÜN!" mesajını geliştir
+- [x] Skor göster: hayatta kalınan süre (saniye) + öldürülen düşman sayısı
+- [x] "Tekrar Oyna" butonu ekle (sayfa yenilemeden yeniden başlat)
+- [x] Skoru hesaplamak için gameStartTime ve killCount sayaçları ekle
+- [x] Game Over ekranını Canvas üzerine çiz
 
 ---
 

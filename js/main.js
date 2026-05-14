@@ -27,7 +27,6 @@ import { drawMap } from './renderer/MapRenderer.js';
 import { drawUI } from './renderer/UIRenderer.js';
 import { Player } from './entities/Player.js';
 import { Drone } from './entities/Drone.js';
-import { Enemy } from './entities/Enemy.js';
 import { CollisionSystem } from './systems/CollisionSystem.js';
 import { SpawnSystem } from './systems/SpawnSystem.js';
 import { UpgradeSystem } from './systems/UpgradeSystem.js';

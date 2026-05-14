@@ -299,6 +299,133 @@ Git Kullanımıyla alakalı sorular
 
 </details>
 
+<details>
+<summary>📅 11.05.2026 — Gemini • Kontrol Promptu</summary>
+
+<details>
+<summary>🧠 Prompt</summary>
+
+Bu projeyi bir senior software engineer + product reviewer + system architect bakış açısıyla tamamen incelemeni istiyorum.
+Tüm dosyaları, klasör yapısını, kod organizasyonunu, mimariyi, database tasarımını, API yapısını, UI/UX akışını, naming convention’ları, security risklerini, performans problemlerini ve maintainability durumunu detaylıca analiz et.
+
+İnceleme sırasında özellikle şunlara bak:
+
+* Bug veya potansiyel bug ihtimalleri
+* Edge-case problemleri
+* Mantık hataları
+* Güvenlik açıkları
+* Scalability problemleri
+* Kötü code smell örnekleri
+* Tekrarlanan kodlar
+* Gereksiz complexity
+* SOLID prensiplerine aykırı yapılar
+* Database normalization / ilişki hataları
+* API consistency problemleri
+* Error handling eksikleri
+* Logging eksikleri
+* Validation eksikleri
+* Authentication / authorization problemleri
+* Async işlem riskleri
+* Race condition ihtimalleri
+* Memory / performance bottleneck’leri
+* UX problemleri
+* Accessibility eksikleri
+* Deployment riskleri
+* Environment/configuration problemleri
+* Test coverage eksikleri
+* Production’da patlayabilecek noktalar
+
+Sadece problem söyleme.
+Her problem için:
+
+1. Problemi açıkla
+2. Neden problem olduğunu anlat
+3. Olası etkisini söyle
+4. Nasıl çözülmesi gerektiğini anlat
+5. Gerekirse örnek refactor kodu ver
+
+Ayrıca şu başlıklarda ayrı ayrı değerlendirme yap:
+
+# 1. Genel Mimari Değerlendirme
+
+* Projenin güçlü yönleri
+* Zayıf yönleri
+* Teknik borçlar
+* Uzun vadeli riskler
+
+# 2. Kod Kalitesi Analizi
+
+* Clean code
+* Readability
+* Modularity
+* Maintainability
+
+# 3. Production Readiness
+
+* Bu proje gerçek kullanıcı yüküne hazır mı?
+* Hangi noktalarda kırılır?
+* Monitoring/logging yeterli mi?
+
+# 4. Security Review
+
+* OWASP seviyesinde inceleme yap
+* Input validation
+* Injection riskleri
+* Secret management
+* Auth sistemi
+* Rate limiting
+* Session/token güvenliği
+
+# 5. Performance Review
+
+* Slow query ihtimalleri
+* N+1 problemleri
+* Cache ihtiyacı
+* Gereksiz render/processler
+* Büyük ölçek riskleri
+
+# 6. Developer Experience
+
+* Yeni bir developer projeye kolay adapte olabilir mi?
+* Folder structure mantıklı mı?
+* Dokümantasyon yeterli mi?
+
+# 7. Final Verdict
+
+En sonunda:
+
+* Projeye 10 üzerinden puan ver
+* Junior / Mid / Senior seviyesinde mi söyle
+* Gerçek dünyada kullanılabilirlik seviyesini değerlendir
+* En kritik 10 problemi öncelik sırasına göre listele
+* İlk düzeltilmesi gereken 5 şeyi yaz
+
+İnceleme yaparken olabildiğince acımasız, dürüst ve teknik davran.
+“Looks good” tarzı yüzeysel yorumlar istemiyorum.
+Gerçek bir code review + architecture audit + production audit yapmanı istiyorum.
+
+Eğer bir dosya veya bölüm eksikse bunu ayrıca belirt.
+
+</details>
+
+<details>
+<summary>🤖 Cevap</summary>
+
+Projenizin tamamını detaylıca inceledim. Kod mimarisinden performans darboğazlarına, memory leak sorunlarından architectural ihlallere kadar her şeyi baştan aşağı analiz ettim.
+
+Tüm bulgularımı, verdiğim puanı (4/10), seviye değerlendirmesini (Junior/Mid arası) ve en acil çözülmesi gereken 5 madde ile kritik 10 problemi detaylı bir rapor halinde oluşturduğum project_audit_report.md dosyasına (Artifact) kaydettim. Sağ taraftan açıp okuyabilirsiniz.
+
+Özetle projede modüler (ES6) yapıya geçiş harika bir adım olmuş, ancak ölümcül 3 temel sorun var:
+
+Memory Leak (Hafıza Kaçağı): inputManager her oyun yeniden başladığında event listener'ları üst üste kopyalayarak ekliyor. Benzer şekilde SpawnSystem durdurulduğunda zombi bir loop (requestAnimationFrame) yaratabiliyor.
+Mimari İhlaller: Çarpışma sisteminin (CollisionSystem) işi sadece objelerin birbirine değip değmediğini kontrol etmektir. Ancak şu an düşmanların oyun içi hareketi (update) bu dosyanın içerisinden tetikleniyor. Bu mantıksal bir hatadır.
+Performans (O(N²)): Düşmanlar ve objeler için döngü içinde array.splice() kullanımı, mermi ve düşman sayısı arttığında oyunun FPS'ini yerle bir edecektir. Ayrıca karekök (Math.hypot) kullanımı gibi maliyetli operasyonlar optimize edilmemiş.
+Rapor dosyasında bu problemlerin neden sorun olduğunu, production'da neye mal olacağını ve örnek Refactor kodlarıyla birlikte nasıl çözüleceğini detaylıca yazdım. Lütfen raporu inceleyip hangi adımdan düzeltmelere başlamak istediğinizi belirtin, birlikte düzeltelim!
+
+</details>
+
+</details>
+
 ---
 
 <details>

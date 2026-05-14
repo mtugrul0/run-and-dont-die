@@ -31,19 +31,19 @@ import { audioManager } from '../assets/AudioManager.js';
  * @param {object[]} orbs 
  */
 
-function handleEnemyDeath(enemy, index, enemies, orbs) {
+function handleEnemyDeath(enemy, index, enemies, orbs) { // spawn XP orb
     orbs.push(new ExperienceOrb(enemy.x, enemy.y, 10));
     enemies.splice(index, 1);
 }
 
-function update(gameState) {
+function update(gameState) { // Tüm collision ve interaction sistemlerini tek merkezden güncelle
     const { player, drone, enemies, projectiles, orbs, zones, weaponDrops, MAP_WIDTH, MAP_HEIGHT, ctx, camera } = gameState;
-    player.madBuff = false;
-    for (let i = zones.length - 1; i >= 0; i--) {
+    player.madBuff = false; // mad buff durumunu sıfırla
+    for (let i = zones.length - 1; i >= 0; i--) { // bölgeleri güncelle
         zones[i].update(ctx, camera);
         if (zones[i].timer <= 0) { zones.splice(i, 1); continue; }
 
-        const dz = Math.hypot(player.x - zones[i].x, player.y - zones[i].y);
+        const dz = Math.hypot(player.x - zones[i].x, player.y - zones[i].y); // Player'ın mad zone içinde olup olmadığını kontrol et
         if (dz < zones[i].radius && zones[i].type === 'mad') {
             player.madBuff = true;
         }
@@ -57,7 +57,7 @@ function update(gameState) {
             const found = player.inventory.find(w => w.type === weaponDrops[i].type);
             if (found) {
                 found.ammo += 20;
-            } else if (player.inventory.length < player.maxSlots) {
+            } else if (player.inventory.length < player.maxSlots) { // silah envanteri dolu değilse yeni silah ekle
                 player.inventory.push({ type: weaponDrops[i].type, isMelee: false, ammo: 30 });
             }
             const pickupSound = assets.audio.pickup;

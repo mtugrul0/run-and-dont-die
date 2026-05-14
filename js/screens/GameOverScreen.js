@@ -20,7 +20,7 @@ export class GameOverScreen {
         this.stats = stats;
         this.onRestart = onRestart;
 
-        this._alpha = 0;
+        this._alpha = 0; // Fade-in animasyonu için overlay opacity değeri
         this._animDone = false;
         this._startTs = performance.now();
 
@@ -29,13 +29,13 @@ export class GameOverScreen {
 
         this._handleMouseMove = (e) => this._onMouseMove(e);
         this._handleClick = (e) => this._onClick(e);
-        window.addEventListener('mousemove', this._handleMouseMove);
+        window.addEventListener('mousemove', this._handleMouseMove); // hover ve click eventlerini global olarak dinle
         window.addEventListener('click', this._handleClick);
 
         this._rafId = requestAnimationFrame(this._loop.bind(this));
     }
 
-    destroy() {
+    destroy() { // event listenerları kaldır
         window.removeEventListener('mousemove', this._handleMouseMove);
         window.removeEventListener('click', this._handleClick);
         cancelAnimationFrame(this._rafId);
@@ -50,14 +50,14 @@ export class GameOverScreen {
         this._rafId = requestAnimationFrame(this._loop.bind(this));
     }
 
-    _draw() {
+    _draw() { // Oyun bitti ekranini ciz
         const { canvas, ctx, stats } = this;
         const w = canvas.width;
         const h = canvas.height;
         const a = this._alpha;
 
         ctx.save();
-        ctx.globalAlpha = a;
+        ctx.globalAlpha = a; // Overlay opacity
 
         const overlay = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h));
         overlay.addColorStop(0, 'rgba(30,0,0,0.88)');
@@ -94,7 +94,7 @@ export class GameOverScreen {
         ctx.lineWidth = 1.5;
         ctx.stroke();
 
-        this._drawScoreRow(
+        this._drawScoreRow( // Hayatta kalma süresini çiz
             ctx,
             w / 2,
             panelY + 52,
@@ -153,7 +153,7 @@ export class GameOverScreen {
         ctx.restore();
     }
 
-    _drawScoreRow(ctx, cx, y, label, value, valueColor) {
+    _drawScoreRow(ctx, cx, y, label, value, valueColor) { // Skor satırlarını çiz
         ctx.textAlign = 'left';
         ctx.fillStyle = 'rgba(255,255,255,0.5)';
         ctx.font = '13px Georgia, serif';
@@ -178,7 +178,7 @@ export class GameOverScreen {
         this._btnHovered = (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h);
     }
 
-    _onClick(e) {
+    _onClick(e) { // Butona tıklanırsa ekranı temizle ve oyunu yeniden başlat
         if (!this._btnBounds) return;
         const rect = this.canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
