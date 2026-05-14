@@ -1,15 +1,17 @@
-import { CLASS_STATS } from '../config.js';
+import { CLASS_STATS, SPRITE_DATA } from '../config.js';
 
 const SPRITE_MAP = {
     ninja: 'assets/images/player/ninja/Idle.png',
-    yeniceri: 'assets/images/player/king/Idle.png',
-    kovboy: 'assets/images/player/wizard/Idle.png'
+    wizard: 'assets/images/player/wizard/Idle.png',
+    king: 'assets/images/player/king/Idle.png'
 };
+
+const ANIM_FPS = 120; // ms per frame
 
 const CLASS_LABELS = {
     ninja: 'NİNJA',
-    yeniceri: 'YENİÇERİ',
-    kovboy: 'KOVBOY'
+    wizard: 'WIZARD',
+    king: 'KING'
 };
 
 export class CharacterSelectScreen {
@@ -21,6 +23,10 @@ export class CharacterSelectScreen {
         this.selectedClass = null;
         this.hoveredClass = null;
         this.hoveredStart = false;
+
+        // Animasyon state — her karakter için ayrı frame sayacı
+        this.animFrames = { ninja: 0, wizard: 0, king: 0 };
+        this.lastFrameTime = 0;
 
         this.sprites = {};
         this._loadSprites();
@@ -52,7 +58,7 @@ export class CharacterSelectScreen {
         const cardWidth = 180;
         const cardHeight = 280;
         const gap = 40;
-        const classes = ['ninja', 'yeniceri', 'kovboy'];
+        const classes = ['ninja', 'wizard', 'king'];
         const totalWidth = classes.length * cardWidth + (classes.length - 1) * gap;
         const startX = (w - totalWidth) / 2;
         const startY = (h - cardHeight) / 2 - 20;
@@ -66,7 +72,7 @@ export class CharacterSelectScreen {
         }));
     }
 
-    update() {
+    update(timestamp = performance.now()) {
         const ctx = this.ctx;
         const w = this.canvas.width;
         const h = this.canvas.height;
@@ -91,6 +97,16 @@ export class CharacterSelectScreen {
         ctx.moveTo(w / 2 - 200, 120);
         ctx.lineTo(w / 2 + 200, 120);
         ctx.stroke();
+
+        // --- Animasyon frame güncelle ---
+        if (timestamp - this.lastFrameTime >= ANIM_FPS) {
+            const elapsed = Math.floor((timestamp - this.lastFrameTime) / ANIM_FPS);
+            for (const cls of ['ninja', 'wizard', 'king']) {
+                const totalFrames = SPRITE_DATA[cls]?.idle?.frames ?? 6;
+                this.animFrames[cls] = (this.animFrames[cls] + elapsed) % totalFrames;
+            }
+            this.lastFrameTime = timestamp;
+        }
 
         // --- Kartlar ---
         const cards = this._getCardBounds();
@@ -127,8 +143,23 @@ export class CharacterSelectScreen {
             const iconY = card.y + yOffset + 70;
 
             if (this.sprites[card.cls]) {
-                // Sprite yüklendiyse çiz
-                ctx.drawImage(this.sprites[card.cls], card.x + 20, card.y + yOffset + 20, card.w - 40, 90);
+                // Sprite sheet'ten sadece aktif idle frame'i kes ve çiz
+                const sd = SPRITE_DATA[card.cls];
+                const frame = this.animFrames[card.cls];
+                const fw = sd.frameW;
+                const fh = sd.frameH;
+                const sx = frame * fw;       // kaynak x (sheet içindeki frame başlangıcı)
+                const sy = 0;                // tek satır sprite sheet
+
+                const destSize = card.w - 40;
+                const destX = card.x + 20;
+                const destY = card.y + yOffset + 10;
+
+                ctx.drawImage(
+                    this.sprites[card.cls],
+                    sx, sy, fw, fh,           // kaynak dikdörtgen (1 frame)
+                    destX, destY, destSize, destSize  // hedef dikdörtgen
+                );
             } else {
                 // Fallback: renkli daire
                 ctx.beginPath();

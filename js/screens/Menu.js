@@ -1,4 +1,4 @@
-import { CLASS_STATS } from '../config.js';
+import { CLASS_STATS, SPRITE_DATA } from '../config.js';
 import { audioManager } from '../assets/AudioManager.js';
 
 const SPRITE_MAP = {
@@ -29,6 +29,10 @@ export class Menu {
         this.hoveredCloseHowTo = false;
 
         this.soundOn = true;
+
+        // Animasyon state — her karakter için ayrı frame sayacı
+        this.animFrames = { ninja: 0, wizard: 0, king: 0 };
+        this.lastFrameTime = 0;
 
         // Animasyon
         this._time = 0;
@@ -95,9 +99,19 @@ export class Menu {
         }));
     }
 
-    update() {
+    update(timestamp = performance.now()) {
         this._time++;
         const ctx = this.ctx;
+
+        // --- Animasyon frame güncelle ---
+        if (timestamp - this.lastFrameTime >= 120) {
+            const elapsed = Math.floor((timestamp - this.lastFrameTime) / 120);
+            for (const cls of ['ninja', 'wizard', 'king']) {
+                const totalFrames = SPRITE_DATA[cls]?.idle?.frames ?? 6;
+                this.animFrames[cls] = (this.animFrames[cls] + elapsed) % totalFrames;
+            }
+            this.lastFrameTime = timestamp;
+        }
         const w = this.canvas.width;
         const h = this.canvas.height;
 
@@ -218,7 +232,21 @@ export class Menu {
 
         // --- Karakter ikonu ---
         if (this.sprites[card.cls]) {
-            ctx.drawImage(this.sprites[card.cls], card.x + 20, card.y + yOffset + 18, card.w - 40, 85);
+            const sd = SPRITE_DATA[card.cls];
+            const frame = this.animFrames[card.cls] || 0;
+            const fw = sd ? sd.frameW : (this.sprites[card.cls].width / 6);
+            const fh = sd ? sd.frameH : this.sprites[card.cls].height;
+            const sx = frame * fw;
+
+            const destSize = card.w - 40;
+            const destX = card.x + 20;
+            const destY = card.y + yOffset + 10;
+
+            ctx.drawImage(
+                this.sprites[card.cls],
+                sx, 0, fw, fh,
+                destX, destY, destSize, destSize
+            );
         } else {
             const iconX = card.x + card.w / 2;
             const iconY = card.y + yOffset + 60;

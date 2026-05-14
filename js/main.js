@@ -151,8 +151,8 @@ const selectionScreen = new Menu(canvas, ctx, (chosenClass, soundOn) => {
 });
 
 let selectionRafId;
-function selectionLoop() {
-    selectionScreen.update();
+function selectionLoop(timestamp) {
+    selectionScreen.update(timestamp);
     selectionRafId = requestAnimationFrame(selectionLoop);
 }
 
