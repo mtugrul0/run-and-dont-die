@@ -33,6 +33,7 @@ import { UpgradeSystem } from './systems/UpgradeSystem.js';
 import { loadAllAssets, assets } from './assets/AssetLoader.js';
 import { audioManager } from './assets/AudioManager.js';
 import { GameOverScreen } from './screens/GameOverScreen.js';
+import { LoadingScreen } from './screens/LoadingScreen.js';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -156,13 +157,26 @@ function selectionLoop(timestamp) {
     selectionRafId = requestAnimationFrame(selectionLoop);
 }
 
+const loadingScreen = new LoadingScreen(canvas, ctx);
+let loadingRafId;
+function loadingLoop() {
+    loadingScreen.update();
+    loadingRafId = requestAnimationFrame(loadingLoop);
+}
+
+// Start loading animation immediately
+loadingLoop();
+
 // Önce tüm asset'leri yükle, sonra seçim ekranını başlat
 loadAllAssets((progress) => {
-    console.log(`Asset yükleniyor: ${Math.floor(progress * 100)}%`);
+    loadingScreen.setProgress(progress);
 }).then(() => {
-    console.log('Tüm asset\'ler yüklendi!');
-    // Tarayıcı autoplay politikası nedeniyle ilk başta ses çalmayabilir, 
-    // kullanıcı tıkladığında başlaması gerekebilir.
-    audioManager.playBGM(assets.audio.bgm_menu);
-    selectionLoop();
+    // 0.5 saniye %100'de kalsın, kullanıcı yüklemenin bittiğini görsün
+    setTimeout(() => {
+        cancelAnimationFrame(loadingRafId);
+        // Tarayıcı autoplay politikası nedeniyle ilk başta ses çalmayabilir, 
+        // kullanıcı tıkladığında başlaması gerekebilir.
+        audioManager.playBGM(assets.audio.bgm_menu);
+        selectionLoop();
+    }, 500);
 });
